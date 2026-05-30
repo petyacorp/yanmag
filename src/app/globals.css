@@ -1,0 +1,202 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* ============================================
+     YAN MAG — Design System
+     Warm editorial palette inspired by cultural
+     magazines, architecture publications, and
+     transit graphics.
+     ============================================ */
+
+  /* Primary Background — 60% */
+  --color-yan-ivory: #F3EFE7;
+
+  /* Primary Text — 30% */
+  --color-yan-charcoal: #4A433D;
+
+  /* Primary Accent — 10% */
+  --color-yan-red: #A6342A;
+  --color-yan-red-dark: #8B2920;
+  --color-yan-red-light: #C04A3F;
+
+  /* Secondary Neutral */
+  --color-yan-stone: #8A8078;
+
+  /* Surface & Utility Colors */
+  --color-yan-surface: #FDFCF9;
+  --color-yan-surface-elevated: #F8F5EF;
+  --color-yan-border: #DDD8CE;
+  --color-yan-border-light: #EBE7DF;
+
+  /* Legacy mapping for admin dark mode compatibility */
+  --color-yan-black: #2A2522;
+  --color-yan-white: #FDFCF9;
+  --color-yan-cream: #F3EFE7;
+  --color-yan-accent: #A6342A;
+  --color-yan-accent-dark: #8B2920;
+  --color-yan-muted: #8A8078;
+  --color-yan-slate: #4A433D;
+
+  /* Typography */
+  --font-display: "Cormorant Garamond", "Libre Baskerville", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* ============================================
+   BASE LAYER
+   ============================================ */
+@layer base {
+  :root {
+    --background: var(--color-yan-ivory);
+    --foreground: var(--color-yan-charcoal);
+    --spine-width: 10px;
+  }
+
+  /* Admin dark theme */
+  .dark {
+    --background: #1A1816;
+    --foreground: #E8E4DC;
+    --color-yan-surface: #221F1C;
+    --color-yan-surface-elevated: #2D2924;
+    --color-yan-border: #3D3831;
+    --color-yan-border-light: #4A443C;
+    --color-yan-stone: #9A9288;
+    --color-yan-ivory: #1A1816;
+    --color-yan-charcoal: #E8E4DC;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--color-yan-charcoal);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+
+  /* Selection color */
+  ::selection {
+    background-color: #A6342A;
+    color: #FDFCF9;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-yan-ivory);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-yan-stone);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-yan-charcoal);
+  }
+}
+
+/* ============================================
+   COMPONENTS LAYER
+   ============================================ */
+@layer components {
+  /* Signature Red Spine — book binding / transit line motif */
+  .yan-spine {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--spine-width);
+    height: 100vh;
+    background-color: var(--color-yan-red);
+    z-index: 60;
+  }
+
+  .yan-spine::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(to top, var(--color-yan-ivory), var(--color-yan-red));
+  }
+
+  /* Editorial horizontal rule */
+  .yan-rule {
+    border: none;
+    height: 1px;
+    background-color: var(--color-yan-border);
+  }
+
+  .yan-rule--accent {
+    height: 2px;
+    background-color: var(--color-yan-red);
+    width: 60px;
+  }
+
+  /* Prose overrides for article content */
+  .prose-yan {
+    --tw-prose-body: var(--color-yan-charcoal);
+    --tw-prose-headings: var(--color-yan-charcoal);
+    --tw-prose-links: var(--color-yan-red);
+    --tw-prose-bold: var(--color-yan-charcoal);
+    --tw-prose-quotes: var(--color-yan-charcoal);
+    --tw-prose-quote-borders: var(--color-yan-red);
+    --tw-prose-captions: var(--color-yan-stone);
+    --tw-prose-hr: var(--color-yan-border);
+  }
+}
+
+/* ============================================
+   UTILITIES LAYER
+   ============================================ */
+@layer utilities {
+  /* Marquee animation for trending strip */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  /* Fade-in animation */
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+  }
+
+  /* Subtle line reveal for headings */
+  @keyframes line-reveal {
+    0% { width: 0; }
+    100% { width: 60px; }
+  }
+  .animate-line-reveal {
+    animation: line-reveal 0.8s ease-out forwards;
+  }
+}
