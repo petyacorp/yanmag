@@ -30,11 +30,6 @@ export async function updateSession(request: NextRequest) {
       }
     );
 
-    // Bypass if using dummy URL for local preview
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://dummy.supabase.co') {
-      return supabaseResponse;
-    }
-
     // IMPORTANT: Do not remove this line. It refreshes the auth token.
     const {
       data: { user },
