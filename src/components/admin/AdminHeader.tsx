@@ -3,6 +3,8 @@
 import { Bell, Search, User, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { UserProfile } from "./UserProfile";
+import { LogoutButton } from "./LogoutButton";
 
 export default function AdminHeader() {
   const [isDark, setIsDark] = useState(true);
@@ -46,12 +48,11 @@ export default function AdminHeader() {
           <Bell className="w-5 h-5" strokeWidth={1.5} />
           <span className="absolute top-0 right-0 w-2 h-2 bg-[var(--color-yan-red)] rounded-full"></span>
         </button>
+
+        <LogoutButton />
         
         <div className="flex items-center gap-3 pl-6 border-l border-[var(--color-yan-border)]">
-          <div className="text-right hidden md:block">
-            <p className="text-[13px] font-medium text-[var(--color-yan-charcoal)]">Elena Vargas</p>
-            <p className="text-[11px] text-[var(--color-yan-stone)] font-mono uppercase tracking-widest mt-0.5">Editora</p>
-          </div>
+          <UserProfile />
           <div className="h-9 w-9 rounded-none bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] flex items-center justify-center cursor-pointer hover:border-[var(--color-yan-red)] transition-colors">
             <User className="w-[18px] h-[18px] text-[var(--color-yan-charcoal)]" strokeWidth={1.5} />
           </div>

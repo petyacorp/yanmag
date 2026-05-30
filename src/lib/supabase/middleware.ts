@@ -6,6 +6,8 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+
   try {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,9 +37,7 @@ export async function updateSession(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // Protect admin routes
-    const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
-
+    // Protect admin routes - must have user
     if (isAdminRoute && !user) {
       const url = request.nextUrl.clone();
       url.pathname = '/auth/login';
@@ -45,8 +45,16 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
   } catch (e) {
-    // If Supabase fails to initialize, just continue (useful for UI preview without DB)
-    console.warn("Supabase middleware bypassed due to missing/invalid config");
+    // If Supabase fails on admin routes, BLOCK access
+    if (isAdminRoute) {
+      console.error("Supabase auth check failed for admin route:", e);
+      const url = request.nextUrl.clone();
+      url.pathname = '/auth/login';
+      url.searchParams.set('error', 'auth_config_failed');
+      return NextResponse.redirect(url);
+    }
+    // For public routes, just log and continue
+    console.warn("Supabase middleware warning for non-admin route:", e);
   }
 
   return supabaseResponse;
