@@ -8,10 +8,8 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
-    // TODO: Implement Supabase Google Auth here
-    setTimeout(() => {
-      window.location.href = '/admin'; // Redirect for demo purposes
-    }, 1500);
+    const next = '/admin';
+    window.location.href = `/auth/signin?next=${encodeURIComponent(next)}`;
   };
 
   return (
