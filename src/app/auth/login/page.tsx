@@ -2,14 +2,34 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
+    const supabase = createClient();
     const next = '/admin';
-    window.location.href = `/auth/signin?next=${encodeURIComponent(next)}`;
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      },
+    });
+
+    if (error) {
+      console.error('Google sign-in error:', error);
+      setIsLoading(false);
+      return;
+    }
+
+    if (data?.url) {
+      window.location.href = data.url;
+    } else {
+      console.error('Google sign-in did not return a redirect URL.');
+      setIsLoading(false);
+    }
   };
 
   return (
