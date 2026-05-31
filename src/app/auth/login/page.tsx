@@ -15,12 +15,16 @@ export default function LoginPage() {
     try {
       const supabase = createClient();
       const next = '/admin';
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+      console.log('Starting Google sign-in with redirectTo:', redirectTo);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          redirectTo,
         },
       });
+
+      console.log('Supabase signInWithOAuth response', { data, error });
 
       if (error) {
         console.error('Google sign-in error:', error);
@@ -30,6 +34,7 @@ export default function LoginPage() {
       }
 
       if (data?.url) {
+        console.log('Redirecting to Google OAuth:', data.url);
         window.location.href = data.url;
       } else {
         console.error('Google sign-in did not return a redirect URL.');
