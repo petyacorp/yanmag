@@ -6,28 +6,39 @@ import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    const supabase = createClient();
-    const next = '/admin';
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    });
+    setErrorMessage(null);
 
-    if (error) {
-      console.error('Google sign-in error:', error);
-      setIsLoading(false);
-      return;
-    }
+    try {
+      const supabase = createClient();
+      const next = '/admin';
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
+      });
 
-    if (data?.url) {
-      window.location.href = data.url;
-    } else {
-      console.error('Google sign-in did not return a redirect URL.');
+      if (error) {
+        console.error('Google sign-in error:', error);
+        setErrorMessage(error.message || 'Error al iniciar sesión con Google');
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        console.error('Google sign-in did not return a redirect URL.');
+        setErrorMessage('No se pudo iniciar el flujo de Google. Revisa la consola del navegador.');
+        setIsLoading(false);
+      }
+    } catch (exception) {
+      console.error('Unexpected login error:', exception);
+      setErrorMessage('Error inesperado al iniciar sesión. Abre la consola para detalles.');
       setIsLoading(false);
     }
   };
@@ -75,6 +86,12 @@ export default function LoginPage() {
             </>
           )}
         </button>
+
+        {errorMessage && (
+          <p className="mt-4 text-sm text-red-600 font-medium text-center">
+            {errorMessage}
+          </p>
+        )}
 
         <div className="mt-8 text-center border-t border-[var(--color-yan-border)] pt-8">
           <Link href="/" className="text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] transition-colors">
