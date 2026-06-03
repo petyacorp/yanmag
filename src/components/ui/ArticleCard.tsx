@@ -1,6 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { CategoryBadge } from './CategoryBadge';
+import { useLocale } from '../providers/LocaleProvider';
 
 interface ArticleCardProps {
   slug: string;
@@ -17,8 +20,10 @@ interface ArticleCardProps {
 }
 
 export function ArticleCard({ slug, title, excerpt, coverImage, category, date, featured = false }: ArticleCardProps) {
+  const { t } = useLocale();
+
   return (
-    <article className={`group flex flex-col ${featured ? 'md:flex-row md:items-stretch md:gap-12' : 'gap-5'}`}>
+    <article className={`group flex flex-col yan-card-accent ${featured ? 'md:flex-row md:items-stretch md:gap-12' : 'gap-5'}`}>
       <Link
         href={`/articulo/${slug}`}
         className={`block relative overflow-hidden ${
@@ -39,7 +44,11 @@ export function ArticleCard({ slug, title, excerpt, coverImage, category, date, 
 
       <div className={`flex flex-col justify-center flex-1 ${featured ? 'py-4 md:py-8' : 'py-1'}`}>
         <div className="flex items-center gap-4 mb-4">
-          <CategoryBadge name={category.name} slug={category.slug} color={category.color} />
+          <CategoryBadge
+            name={t.nav[category.slug as keyof typeof t.nav] || category.name}
+            slug={category.slug}
+            color={category.color}
+          />
           <span className="text-[11px] font-medium text-[var(--color-yan-stone)] tracking-[0.15em] uppercase">
             {date}
           </span>
@@ -60,7 +69,7 @@ export function ArticleCard({ slug, title, excerpt, coverImage, category, date, 
             href={`/articulo/${slug}`}
             className="inline-flex items-center gap-2 mt-6 text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-red)] hover:gap-4 transition-all duration-300"
           >
-            Leer artículo
+            {t.hero.readArticle}
             <span className="inline-block w-6 h-[1px] bg-[var(--color-yan-red)]" />
           </Link>
         )}

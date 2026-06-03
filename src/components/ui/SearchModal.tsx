@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from '../providers/LocaleProvider';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLocale();
 
   useEffect(() => {
     if (isOpen) {
@@ -47,7 +49,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   };
 
-  const trendingTags = ['Diseño', 'Arquitectura', 'Cultura', 'Entrevistas'];
+  const trendingTags = [t.nav.diseno, t.nav.arquitectura, t.nav.cultura, t.nav.entrevistas];
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] bg-[var(--color-yan-charcoal)]/60 backdrop-blur-sm">
@@ -55,7 +57,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         className="relative w-full max-w-2xl mx-6 bg-[var(--color-yan-ivory)] border border-[var(--color-yan-border)] shadow-xl animate-fade-in-up"
         role="dialog"
         aria-modal="true"
-        aria-label="Buscar"
+        aria-label={t.nav.search}
       >
         {/* Red accent at top */}
         <div className="h-[2px] bg-[var(--color-yan-red)]" />
@@ -64,7 +66,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <button
             onClick={onClose}
             className="absolute top-5 right-5 p-1 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] transition-colors"
-            aria-label="Cerrar búsqueda"
+            aria-label={t.search.close}
           >
             <X className="w-5 h-5" strokeWidth={1.5} />
           </button>
@@ -77,14 +79,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar artículos..."
+                placeholder={t.search.placeholder}
                 className="w-full py-3 pl-9 pr-4 text-xl font-display bg-transparent border-b border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] focus:outline-none transition-colors placeholder:text-[var(--color-yan-stone)]"
               />
             </div>
 
             <div className="mt-8">
               <span className="text-[11px] font-medium tracking-[0.2em] text-[var(--color-yan-stone)] uppercase">
-                Tendencias
+                {t.search.trending}
               </span>
               <div className="flex flex-wrap gap-2 mt-3">
                 {trendingTags.map((tag) => (

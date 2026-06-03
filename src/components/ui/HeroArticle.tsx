@@ -1,6 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { CategoryBadge } from './CategoryBadge';
+import { useLocale } from '../providers/LocaleProvider';
 
 interface HeroArticleProps {
   slug: string;
@@ -16,6 +19,8 @@ interface HeroArticleProps {
 }
 
 export function HeroArticle({ slug, title, excerpt, coverImage, category, date }: HeroArticleProps) {
+  const { t } = useLocale();
+
   return (
     <article className="relative w-full min-h-[75vh] md:min-h-[85vh] flex items-end">
       <div className="absolute inset-0">
@@ -35,7 +40,7 @@ export function HeroArticle({ slug, title, excerpt, coverImage, category, date }
         <div className="max-w-3xl">
           <div className="flex items-center gap-4 mb-6">
             <CategoryBadge
-              name={category.name}
+              name={t.nav[category.slug as keyof typeof t.nav] || category.name}
               slug={category.slug}
               color="#FDFCF9"
             />
@@ -58,7 +63,7 @@ export function HeroArticle({ slug, title, excerpt, coverImage, category, date }
             href={`/articulo/${slug}`}
             className="inline-flex items-center gap-3 mt-8 text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-ivory)] hover:text-[var(--color-yan-red-light)] hover:gap-5 transition-all duration-300"
           >
-            Leer artículo
+            {t.hero.readArticle}
             <span className="inline-block w-8 h-[1px] bg-current" />
           </Link>
         </div>

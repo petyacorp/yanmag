@@ -1,7 +1,19 @@
+'use client';
+
 import Link from 'next/link';
 import { NewsletterForm } from '../ui/NewsletterForm';
+import { useLocale } from '../providers/LocaleProvider';
+
+const CATEGORY_SLUGS = ['diseno', 'cultura', 'moda', 'arquitectura', 'entrevistas'] as const;
 
 export function Footer() {
+  const { t } = useLocale();
+
+  const categories = CATEGORY_SLUGS.map((slug) => ({
+    name: t.nav[slug],
+    slug,
+  }));
+
   return (
     <footer className="bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] mt-24">
       {/* Red accent line at top of footer */}
@@ -18,24 +30,23 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-[var(--color-yan-stone)] text-[15px] leading-relaxed max-w-sm">
-              Explorando la intersección del diseño, la cultura y el estilo de vida
-              contemporáneo con una mirada editorial y arquitectónica.
+              {t.footer.tagline}
             </p>
           </div>
 
           {/* Navigation column */}
           <div className="md:col-span-3 md:col-start-6">
             <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-stone)] mb-6">
-              Explorar
+              {t.footer.explore}
             </h4>
             <nav className="flex flex-col gap-3">
-              {['Diseño', 'Cultura', 'Moda', 'Arquitectura', 'Entrevistas'].map((cat) => (
+              {categories.map((cat) => (
                 <Link
-                  key={cat}
-                  href={`/categoria/${cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ /g, '-')}`}
+                  key={cat.slug}
+                  href={`/categoria/${cat.slug}`}
                   className="text-[var(--color-yan-stone)] hover:text-[var(--color-yan-ivory)] transition-colors duration-300 text-[15px] w-fit"
                 >
-                  {cat}
+                  {cat.name}
                 </Link>
               ))}
             </nav>
@@ -44,10 +55,10 @@ export function Footer() {
           {/* Newsletter column */}
           <div className="md:col-span-4 md:col-start-9">
             <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-stone)] mb-6">
-              Boletín Semanal
+              {t.newsletter.title}
             </h4>
             <p className="text-[var(--color-yan-stone)] text-sm mb-6 leading-relaxed">
-              Recibe nuestras mejores historias directamente en tu bandeja de entrada.
+              {t.newsletter.description}
             </p>
             <NewsletterForm variant="dark" />
           </div>
@@ -56,17 +67,17 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[12px] text-[var(--color-yan-stone)] tracking-wide">
-            © {new Date().getFullYear()} YAN MAG. Todos los derechos reservados.
+            © {new Date().getFullYear()} YAN MAG. {t.footer.rights}
           </p>
           <div className="flex gap-8 text-[12px] text-[var(--color-yan-stone)]">
             <Link href="/privacidad" className="hover:text-[var(--color-yan-ivory)] transition-colors">
-              Privacidad
+              {t.footer.privacy}
             </Link>
             <Link href="/terminos" className="hover:text-[var(--color-yan-ivory)] transition-colors">
-              Términos
+              {t.footer.terms}
             </Link>
             <Link href="/contacto" className="hover:text-[var(--color-yan-ivory)] transition-colors">
-              Contacto
+              {t.footer.contact}
             </Link>
           </div>
         </div>

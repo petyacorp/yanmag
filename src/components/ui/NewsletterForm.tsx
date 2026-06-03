@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
+import { useLocale } from '../providers/LocaleProvider';
 
 interface NewsletterFormProps {
   variant?: 'light' | 'dark';
@@ -10,6 +11,7 @@ interface NewsletterFormProps {
 export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const { t } = useLocale();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +31,7 @@ export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
       <div className="flex items-center gap-3 py-4">
         <CheckCircle className="w-5 h-5 text-[var(--color-yan-red)] flex-shrink-0" />
         <p className={`text-sm ${isDark ? 'text-[var(--color-yan-ivory)]' : 'text-[var(--color-yan-charcoal)]'}`}>
-          ¡Gracias por suscribirte!
+          {t.newsletter.success}
         </p>
       </div>
     );
@@ -42,7 +44,7 @@ export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Tu correo electrónico"
+          placeholder={t.newsletter.placeholder}
           required
           className={`flex-1 py-3 px-4 text-sm border focus:outline-none focus:border-[var(--color-yan-red)] transition-colors ${
             isDark
@@ -54,7 +56,7 @@ export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
           type="submit"
           disabled={status === 'loading'}
           className="px-5 py-3 bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] hover:bg-[var(--color-yan-red-dark)] transition-colors duration-300 disabled:opacity-50 flex items-center"
-          aria-label="Suscribirse"
+          aria-label={t.newsletter.subscribe}
         >
           {status === 'loading' ? (
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -64,7 +66,7 @@ export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
         </button>
       </div>
       <p className={`text-[11px] tracking-wide ${isDark ? 'text-white/30' : 'text-[var(--color-yan-stone)]'}`}>
-        Sin spam. Cancela cuando quieras.
+        {t.newsletter.disclaimer}
       </p>
     </form>
   );
