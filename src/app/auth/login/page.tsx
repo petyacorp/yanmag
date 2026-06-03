@@ -6,10 +6,16 @@ import Link from 'next/link';
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [signInUrl, setSignInUrl] = useState('/auth/signin?next=%2Fadmin');
 
   useEffect(() => {
     // Check if there is an error in the query parameters on mount
     const params = new URLSearchParams(window.location.search);
+    
+    // Read the redirectTo parameter and build the sign-in URL
+    const next = params.get('redirectTo') || '/admin';
+    setSignInUrl(`/auth/signin?next=${encodeURIComponent(next)}`);
+
     const errorParam = params.get('error');
     if (errorParam) {
       if (errorParam === 'signin_failed' || errorParam === 'auth_failed') {
@@ -25,17 +31,6 @@ export default function LoginPage() {
       }
     }
   }, []);
-
-  const handleGoogleLogin = () => {
-    setIsLoading(true);
-    setErrorMessage(null);
-
-    const params = new URLSearchParams(window.location.search);
-    const next = params.get('redirectTo') || '/admin';
-    
-    // Redirect to the server-side sign-in route
-    window.location.href = `/auth/signin?next=${encodeURIComponent(next)}`;
-  };
 
   return (
     <div className="min-h-screen bg-[var(--color-yan-ivory)] flex flex-col justify-center items-center px-6">
@@ -60,10 +55,12 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <button
-          onClick={handleGoogleLogin}
-          disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] py-4 px-6 hover:bg-[var(--color-yan-red)] transition-colors duration-300 disabled:opacity-70 disabled:cursor-not-allowed group"
+        <a
+          href={signInUrl}
+          onClick={() => setIsLoading(true)}
+          className={`w-full flex items-center justify-center gap-3 bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] py-4 px-6 hover:bg-[var(--color-yan-red)] transition-colors duration-300 group ${
+            isLoading ? 'opacity-70 cursor-not-allowed pointer-events-none' : ''
+          }`}
         >
           {isLoading ? (
              <span className="w-5 h-5 border-2 border-[var(--color-yan-ivory)]/30 border-t-[var(--color-yan-ivory)] rounded-full animate-spin" />
@@ -79,7 +76,7 @@ export default function LoginPage() {
               <span className="text-sm font-medium tracking-wide">Acceder con Google</span>
             </>
           )}
-        </button>
+        </a>
 
         {errorMessage && (
           <p className="mt-4 text-sm text-red-600 font-medium text-center">
