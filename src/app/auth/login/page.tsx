@@ -1,51 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleGoogleLogin = async () => {
+  useEffect(() => {
+    // Check if there is an error in the query parameters on mount
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get('error');
+    if (errorParam) {
+      if (errorParam === 'signin_failed' || errorParam === 'auth_failed') {
+        setErrorMessage('Error al iniciar sesión con Google. Inténtalo de nuevo.');
+      } else if (errorParam === 'not_authenticated') {
+        setErrorMessage('Debes iniciar sesión para acceder al panel.');
+      } else if (errorParam === 'auth_check_failed') {
+        setErrorMessage('La verificación de sesión falló. Inicia sesión de nuevo.');
+      } else if (errorParam === 'auth_config_failed') {
+        setErrorMessage('Error de configuración en el servicio de autenticación.');
+      } else {
+        setErrorMessage('Ocurrió un error al autenticar. Por favor reintenta.');
+      }
+    }
+  }, []);
+
+  const handleGoogleLogin = () => {
     setIsLoading(true);
     setErrorMessage(null);
 
-    try {
-      const supabase = createClient();
-      const next = '/admin';
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
-      console.log('Starting Google sign-in with redirectTo:', redirectTo);
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-        },
-      });
-
-      console.log('Supabase signInWithOAuth response', { data, error });
-
-      if (error) {
-        console.error('Google sign-in error:', error);
-        setErrorMessage(error.message || 'Error al iniciar sesión con Google');
-        setIsLoading(false);
-        return;
-      }
-
-      if (data?.url) {
-        console.log('Redirecting to Google OAuth:', data.url);
-        window.location.href = data.url;
-      } else {
-        console.error('Google sign-in did not return a redirect URL.');
-        setErrorMessage('No se pudo iniciar el flujo de Google. Revisa la consola del navegador.');
-        setIsLoading(false);
-      }
-    } catch (exception) {
-      console.error('Unexpected login error:', exception);
-      setErrorMessage('Error inesperado al iniciar sesión. Abre la consola para detalles.');
-      setIsLoading(false);
-    }
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get('redirectTo') || '/admin';
+    
+    // Redirect to the server-side sign-in route
+    window.location.href = `/auth/signin?next=${encodeURIComponent(next)}`;
   };
 
   return (
