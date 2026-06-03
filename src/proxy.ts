@@ -5,7 +5,10 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   const code = url.searchParams.get('code');
 
+  console.log(`[PROXY MIDDLEWARE] Path: ${url.pathname}, Search: ${url.search}, Code: ${code}`);
+
   if (code && url.pathname !== '/auth/callback') {
+    console.log(`[PROXY MIDDLEWARE] Redirecting to /auth/callback with code`);
     url.pathname = '/auth/callback';
     return NextResponse.redirect(url);
   }
