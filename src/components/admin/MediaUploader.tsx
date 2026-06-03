@@ -55,9 +55,10 @@ export default function MediaUploader({ onClose, onSelect }: { onClose: () => vo
       
       // Auto-select the uploaded image
       onSelect(result.url);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error uploading file:", e);
-      alert("Error al subir el archivo. Verifica el tamaño y formato.");
+      const errorMsg = e?.message || e?.error_description || String(e);
+      alert(`Error al subir el archivo: ${errorMsg}\n\nVerifica si el bucket 'media' está creado en Supabase Storage y si las políticas de acceso (RLS) permiten subir imágenes.`);
     } finally {
       setUploading(false);
     }
