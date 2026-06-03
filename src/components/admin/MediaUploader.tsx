@@ -53,8 +53,12 @@ export default function MediaUploader({ onClose, onSelect }: { onClose: () => vo
       formData.append("file", file);
       const result = await uploadImage(formData);
       
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      
       // Auto-select the uploaded image
-      onSelect(result.url);
+      onSelect(result.url!);
     } catch (e: any) {
       console.error("Error uploading file:", e);
       const errorMsg = e?.message || e?.error_description || String(e);

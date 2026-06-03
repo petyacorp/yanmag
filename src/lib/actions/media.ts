@@ -3,29 +3,41 @@
 import { createClient } from '@/lib/supabase/server';
 
 export async function uploadImage(formData: FormData) {
-  const supabase = await createClient();
-  const file = formData.get('file') as File;
-  
-  if (!file) throw new Error('No file provided');
+  try {
+    const supabase = await createClient();
+    const file = formData.get('file') as File;
+    
+    if (!file) return { success: false, error: 'No file provided' };
 
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-  const filePath = `articles/${fileName}`;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `articles/${fileName}`;
 
-  const { data, error } = await supabase.storage
-    .from('media')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: false,
-    });
+    console.log(`[STORAGE UPLOAD] Uploading file ${file.name} (size: ${file.size}) to path ${filePath}`);
 
-  if (error) throw error;
+    const { data, error } = await supabase.storage
+      .from('media')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
 
-  const { data: { publicUrl } } = supabase.storage
-    .from('media')
-    .getPublicUrl(data.path);
+    if (error) {
+      console.error('[STORAGE UPLOAD ERROR] Supabase upload failed:', error);
+      return { success: false, error: error.message || String(error) };
+    }
 
-  return { path: data.path, url: publicUrl };
+    const { data: { publicUrl } } = supabase.storage
+      .from('media')
+      .getPublicUrl(data.path);
+
+    console.log(`[STORAGE UPLOAD SUCCESS] Public URL: ${publicUrl}`);
+
+    return { success: true, path: data.path, url: publicUrl };
+  } catch (e: any) {
+    console.error('[STORAGE UPLOAD CATCH] Unexpected error:', e);
+    return { success: false, error: e?.message || String(e) };
+  }
 }
 
 export async function deleteImage(path: string) {
