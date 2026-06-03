@@ -1,18 +1,48 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { NewsletterForm } from '../ui/NewsletterForm';
 import { useLocale } from '../providers/LocaleProvider';
+import { getCategories } from '@/lib/actions/categories';
 
 const CATEGORY_SLUGS = ['diseno', 'cultura', 'moda', 'arquitectura', 'entrevistas'] as const;
 
 export function Footer() {
-  const { t } = useLocale();
+  const [categories, setCategories] = useState<{ id?: string; name: string; slug: string }[]>([]);
+  const { locale, t } = useLocale();
 
-  const categories = CATEGORY_SLUGS.map((slug) => ({
-    name: t.nav[slug],
-    slug,
-  }));
+  useEffect(() => {
+    let isMounted = true;
+    
+    // Set fallback categories first
+    const fallbackCategories = CATEGORY_SLUGS.map((slug) => ({
+      name: t.nav[slug],
+      slug,
+    }));
+    setCategories(fallbackCategories);
+
+    // Fetch real categories from Supabase
+    getCategories()
+      .then((dbCats) => {
+        if (isMounted && dbCats && dbCats.length > 0) {
+          const filteredCats = dbCats.filter((c: any) => c.slug !== 'system-pizarra');
+          const mappedCats = filteredCats.map((cat: any) => ({
+            id: cat.id,
+            name: locale === 'es' ? cat.name_es : (cat.name_en || cat.name_es),
+            slug: cat.slug,
+          }));
+          setCategories(mappedCats);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load categories in Footer:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [locale, t.nav]);
 
   return (
     <footer className="bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] mt-24">

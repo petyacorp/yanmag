@@ -1,71 +1,44 @@
-'use client';
+import { getArticles } from '@/lib/actions/articles';
+import { getSiteSettings } from '@/lib/actions/settings';
+import { HomePageClient } from './HomePageClient';
 
-import { HeroArticle } from '@/components/ui/HeroArticle';
-import { ArticleCard } from '@/components/ui/ArticleCard';
-import { MOCK_ARTICLES } from '@/lib/mockData';
-import { useLocale } from '@/components/providers/LocaleProvider';
+export const dynamic = 'force-dynamic';
 
-export default function HomePage() {
-  const heroArticle = MOCK_ARTICLES[0];
-  const gridArticles = MOCK_ARTICLES.slice(1);
-  const { t } = useLocale();
+export default async function HomePage() {
+  // Fetch site settings
+  const siteSettings = await getSiteSettings();
+
+  // Fetch published articles (limit to 10 for the homepage grid)
+  const { articles: dbArticles } = await getArticles({
+    status: 'published',
+    limit: 10
+  });
+
+  // Map articles to the client format
+  const articles = dbArticles.map(art => {
+    return {
+      id: art.id,
+      slug: art.slug,
+      title_es: art.title_es,
+      title_en: art.title_en || art.title_es,
+      excerpt_es: art.excerpt_es || '',
+      excerpt_en: art.excerpt_en || art.excerpt_es || '',
+      coverImage: art.cover_image || '/placeholder-image.jpg',
+      category: {
+        name_es: art.category?.name_es || 'Sin categoría',
+        name_en: art.category?.name_en || art.category?.name_es || 'Uncategorized',
+        slug: art.category?.slug || 'general',
+        color: art.category?.color || '#A6342A'
+      },
+      date: new Date(art.published_at || art.created_at),
+      is_featured: art.is_featured
+    };
+  });
 
   return (
-    <>
-      <section className="-mt-24 md:-mt-32">
-        <HeroArticle {...heroArticle} />
-      </section>
-
-      {/* Trending Strip */}
-      <div className="bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] overflow-hidden py-2 border-y border-[var(--color-yan-red-dark)]">
-        <div className="animate-marquee whitespace-nowrap flex gap-12 font-mono text-[11px] tracking-[0.2em] uppercase">
-          {t.trending.items.map((item, i) => (
-            <span key={i}>
-              {item}
-              {i < t.trending.items.length - 1 && (
-                <span className="opacity-50 ml-12">/</span>
-              )}
-            </span>
-          ))}
-          {/* Duplicate for seamless loop */}
-          {t.trending.items.map((item, i) => (
-            <span key={`dup-${i}`}>
-              {item}
-              {i < t.trending.items.length - 1 && (
-                <span className="opacity-50 ml-12">/</span>
-              )}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <section className="max-w-[1200px] mx-auto px-6 lg:px-8 py-24">
-        <div className="flex items-end justify-between mb-16 border-b border-[var(--color-yan-border)] pb-6">
-          <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">{t.hero.latestStories}</h2>
-          <span className="hidden md:block text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-stone)]">
-            {t.hero.discoverMore}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-20">
-          {gridArticles.map((article) => (
-            <ArticleCard key={article.slug} {...article} />
-          ))}
-        </div>
-      </section>
-      
-      {/* Editorial Block */}
-      <section className="bg-[var(--color-yan-surface-elevated)] py-32 border-y border-[var(--color-yan-border)]">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="w-[1px] h-16 bg-[var(--color-yan-red)] mx-auto mb-12" />
-          <h2 className="font-display text-3xl md:text-5xl lg:text-6xl font-semibold mb-12 leading-[1.1] text-[var(--color-yan-charcoal)]">
-            {t.editorial.quote}
-          </h2>
-          <p className="font-mono text-[12px] text-[var(--color-yan-stone)] uppercase tracking-[0.2em]">
-            {t.editorial.author}
-          </p>
-        </div>
-      </section>
-    </>
+    <HomePageClient 
+      articles={articles}
+      siteSettings={siteSettings}
+    />
   );
 }

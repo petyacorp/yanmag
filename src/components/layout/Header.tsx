@@ -8,13 +8,16 @@ import { ThemeToggle } from '../ui/ThemeToggle';
 import { SearchModal } from '../ui/SearchModal';
 import { useLocale } from '../providers/LocaleProvider';
 
+import { getCategories } from '@/lib/actions/categories';
+
 const CATEGORY_KEYS = ['diseno', 'cultura', 'moda', 'arquitectura', 'entrevistas'] as const;
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { t } = useLocale();
+  const [categories, setCategories] = useState<{ id?: string; name: string; slug: string }[]>([]);
+  const { locale, t } = useLocale();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,10 +27,37 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const categories = CATEGORY_KEYS.map((key) => ({
-    name: t.nav[key],
-    slug: key,
-  }));
+  useEffect(() => {
+    let isMounted = true;
+    
+    // Set fallback categories first
+    const fallbackCategories = CATEGORY_KEYS.map((key) => ({
+      name: t.nav[key],
+      slug: key,
+    }));
+    setCategories(fallbackCategories);
+
+    // Fetch real categories from Supabase
+    getCategories()
+      .then((dbCats) => {
+        if (isMounted && dbCats && dbCats.length > 0) {
+          const filteredCats = dbCats.filter((c: any) => c.slug !== 'system-pizarra');
+          const mappedCats = filteredCats.map((cat: any) => ({
+            id: cat.id,
+            name: locale === 'es' ? cat.name_es : (cat.name_en || cat.name_es),
+            slug: cat.slug,
+          }));
+          setCategories(mappedCats);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load categories in Header:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [locale, t.nav]);
 
   return (
     <>

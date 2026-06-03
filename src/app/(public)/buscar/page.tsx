@@ -1,21 +1,68 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { MOCK_ARTICLES } from '@/lib/mockData';
+import { searchArticles } from '@/lib/actions/articles';
 import { ArticleCard } from '@/components/ui/ArticleCard';
-import { Suspense } from 'react';
-import { Search } from 'lucide-react';
+import { Suspense, useEffect, useState } from 'react';
+import { Search, Loader2 } from 'lucide-react';
+import { useLocale } from '@/components/providers/LocaleProvider';
 
 function SearchResults() {
+  const { locale } = useLocale();
+  const isEs = locale === 'es';
+
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
 
-  const results = query 
-    ? MOCK_ARTICLES.filter(a => 
-        a.title.toLowerCase().includes(query.toLowerCase()) || 
-        a.category.name.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function performSearch() {
+      if (!query.trim()) {
+        setResults([]);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const dbArticles = await searchArticles(query);
+
+        // Map articles to localized format for ArticleCard
+        const mapped = dbArticles.map(art => {
+          const title = isEs ? art.title_es : (art.title_en || art.title_es);
+          const excerpt = isEs ? (art.excerpt_es || '') : (art.excerpt_en || art.excerpt_es || '');
+          const catName = isEs ? art.category?.name_es : (art.category?.name_en || art.category?.name_es);
+          const dateStr = new Date(art.published_at || art.created_at).toLocaleDateString(isEs ? 'es-ES' : 'en-US', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+          });
+
+          return {
+            slug: art.slug,
+            title,
+            excerpt,
+            coverImage: art.cover_image || '/placeholder-image.jpg',
+            category: {
+              name: catName || 'Sin categoría',
+              slug: art.category?.slug || 'general',
+              color: art.category?.color || '#A6342A'
+            },
+            date: dateStr
+          };
+        });
+
+        setResults(mapped);
+      } catch (e) {
+        console.error('Search failed:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    performSearch();
+  }, [query, isEs]);
 
   return (
     <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-16 md:py-24 min-h-[70vh]">
@@ -32,13 +79,21 @@ function SearchResults() {
         </h1>
         
         <p className="text-lg text-[var(--color-yan-stone)] font-light">
-          {query 
-            ? `${results.length} resultado${results.length !== 1 ? 's' : ''} encontrado${results.length !== 1 ? 's' : ''}` 
-            : 'Ingresa un término para explorar nuestro archivo.'}
+          {loading ? (
+            'Buscando publicaciones...'
+          ) : query ? (
+            `${results.length} resultado${results.length !== 1 ? 's' : ''} encontrado${results.length !== 1 ? 's' : ''}`
+          ) : (
+            'Ingresa un término para explorar nuestro archivo.'
+          )}
         </p>
       </header>
 
-      {query && results.length > 0 ? (
+      {loading ? (
+        <div className="py-20 flex justify-center">
+          <Loader2 className="w-10 h-10 text-[var(--color-yan-red)] animate-spin" />
+        </div>
+      ) : query && results.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
           {results.map((article) => (
             <ArticleCard key={article.slug} {...article} />

@@ -5,10 +5,11 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   const code = url.searchParams.get('code');
 
-  console.log(`[PROXY MIDDLEWARE] Path: ${url.pathname}, Search: ${url.search}, Code: ${code}`);
+  console.log(`[PROXY] Path: ${url.pathname}, Search: ${url.search}, Code: ${code}`);
 
+  // Redirigir el código de login de Supabase a la ruta de callback para procesarlo
   if (code && url.pathname !== '/auth/callback') {
-    console.log(`[PROXY MIDDLEWARE] Redirecting to /auth/callback with code`);
+    console.log(`[PROXY] Redirecting OAuth code to /auth/callback`);
     url.pathname = '/auth/callback';
     return NextResponse.redirect(url);
   }
