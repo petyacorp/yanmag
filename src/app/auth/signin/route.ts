@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -7,7 +8,27 @@ export async function GET(request: Request) {
     const origin = url.origin;
     const nextParam = url.searchParams.get('next') || '/admin';
 
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+    const cookiesToSetList: Array<{ name: string; value: string; options: any }> = [];
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+              cookiesToSetList.push({ name, value, options });
+            });
+          },
+        },
+      }
+    );
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -21,7 +42,11 @@ export async function GET(request: Request) {
     }
 
     if (data?.url) {
-      return NextResponse.redirect(data.url);
+      const response = NextResponse.redirect(data.url);
+      cookiesToSetList.forEach(({ name, value, options }) => {
+        response.cookies.set(name, value, options);
+      });
+      return response;
     }
 
     return NextResponse.redirect(`${origin}/auth/login?error=signin_failed`);
