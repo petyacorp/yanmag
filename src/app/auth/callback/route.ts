@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const origin = `${proto}://${host}`;
 
   const cookieStore = await cookies();
-  const next = cookieStore.get('sb-oauth-next')?.value ?? '/admin';
+  const next = searchParams.get('next') || cookieStore.get('sb-oauth-next')?.value || '/admin';
 
   let redirectUrl = `${origin}${next}`;
   const response = NextResponse.redirect(redirectUrl);
@@ -42,6 +42,27 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      // Auto-assign admin role to authorized emails
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && user.email) {
+          const ADMIN_EMAILS = ['nicko.pereira@gmail.com', 'gianfrandres@gmail.com'];
+          if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+            const { error: roleError } = await supabase
+              .from('profiles')
+              .update({ role: 'admin' })
+              .eq('id', user.id);
+            if (roleError) {
+              console.error('[CALLBACK] Failed to auto-assign admin role:', roleError);
+            } else {
+              console.log(`[CALLBACK] Successfully auto-assigned admin role to ${user.email}`);
+            }
+          }
+        }
+      } catch (roleErr) {
+        console.error('[CALLBACK] Error during auto-role assignment:', roleErr);
+      }
+
       response.cookies.delete('sb-oauth-next');
       return response;
     } else {
