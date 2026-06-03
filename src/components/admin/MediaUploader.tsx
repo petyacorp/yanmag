@@ -19,21 +19,25 @@ export default function MediaUploader({ onClose, onSelect }: { onClose: () => vo
   const [uploading, setUploading] = useState(false);
   const [deletingPath, setDeletingPath] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchImages = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getMediaLibrary();
       setImages(data);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error fetching media library:", e);
+      setError("No se pudo cargar la biblioteca de medios. Verifica si el bucket 'media' está creado en Supabase.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    setError(null);
     if (activeTab === "library") {
       fetchImages();
     }
@@ -48,6 +52,7 @@ export default function MediaUploader({ onClose, onSelect }: { onClose: () => vo
 
   const uploadFile = async (file: File) => {
     try {
+      setError(null);
       setUploading(true);
       const formData = new FormData();
       formData.append("file", file);
@@ -62,7 +67,7 @@ export default function MediaUploader({ onClose, onSelect }: { onClose: () => vo
     } catch (e: any) {
       console.error("Error uploading file:", e);
       const errorMsg = e?.message || e?.error_description || String(e);
-      alert(`Error al subir el archivo: ${errorMsg}\n\nVerifica si el bucket 'media' está creado en Supabase Storage y si las políticas de acceso (RLS) permiten subir imágenes.`);
+      setError(`Error al subir el archivo: ${errorMsg}. Asegúrate de que el bucket 'media' exista y que los permisos RLS estén configurados.`);
     } finally {
       setUploading(false);
     }
@@ -129,6 +134,12 @@ export default function MediaUploader({ onClose, onSelect }: { onClose: () => vo
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 bg-[var(--color-yan-surface)]">
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-600 text-xs font-mono rounded-none flex items-center justify-between">
+              <span>{error}</span>
+              <button onClick={() => setError(null)} className="ml-4 font-sans font-bold hover:text-red-800 text-lg leading-none">×</button>
+            </div>
+          )}
           {activeTab === 'upload' ? (
             <div 
               onDragOver={handleDragOver}
