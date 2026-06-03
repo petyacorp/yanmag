@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextParam)}`,
+        redirectTo: `${origin}/auth/callback`,
       },
     });
 
@@ -48,6 +48,15 @@ export async function GET(request: Request) {
       cookiesToSetList.forEach(({ name, value, options }) => {
         response.cookies.set(name, value, options);
       });
+      
+      // Store the destination in a cookie
+      response.cookies.set('sb-oauth-next', nextParam, {
+        path: '/',
+        secure: proto === 'https',
+        maxAge: 600,
+        sameSite: 'lax',
+      });
+      
       return response;
     }
 

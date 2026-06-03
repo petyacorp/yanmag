@@ -6,17 +6,18 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/admin';
 
   const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || url.host;
   const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
   const origin = `${proto}://${host}`;
 
+  const cookieStore = await cookies();
+  const next = cookieStore.get('sb-oauth-next')?.value ?? '/admin';
+
   let redirectUrl = `${origin}${next}`;
   const response = NextResponse.redirect(redirectUrl);
 
   if (code) {
-    const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -37,6 +38,7 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      response.cookies.delete('sb-oauth-next');
       return response;
     } else {
       console.error('exchangeCodeForSession error:', error);
