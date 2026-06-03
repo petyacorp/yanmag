@@ -52,6 +52,7 @@
     --background: var(--color-yan-ivory);
     --foreground: var(--color-yan-charcoal);
     --spine-width: 10px;
+    --background-image: url('/background-light.avif');
   }
 
   /* ========================================
@@ -61,6 +62,7 @@
   [data-theme="dark"] {
     --background: #1A1714;
     --foreground: #E8E4DC;
+    --background-image: url('/background-dark.avif');
     --color-yan-ivory: #1A1714;
     --color-yan-charcoal: #E8E4DC;
     --color-yan-red: #C9443A;
@@ -84,6 +86,7 @@
   .dark {
     --background: #1A1816;
     --foreground: #E8E4DC;
+    --background-image: url('/background-dark.avif');
     --color-yan-surface: #221F1C;
     --color-yan-surface-elevated: #2D2924;
     --color-yan-border: #3D3831;
@@ -99,6 +102,11 @@
 
   body {
     background-color: var(--background);
+    background-image: var(--background-image, none);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
     color: var(--foreground);
     font-family: var(--font-sans);
     font-size: 16px;
@@ -106,7 +114,7 @@
     letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.4s ease, color 0.4s ease;
+    transition: background-color 0.4s ease, color 0.4s ease, background-image 0.4s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {

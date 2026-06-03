@@ -12,9 +12,11 @@ interface DataTableProps {
   columns: Column[];
   data: any[];
   editLinkPrefix?: string;
+  onEdit?: (row: any) => void;
+  onDelete?: (id: string) => void;
 }
 
-export default function DataTable({ columns, data, editLinkPrefix }: DataTableProps) {
+export default function DataTable({ columns, data, editLinkPrefix, onEdit, onDelete }: DataTableProps) {
   return (
     <div className="bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] rounded-none overflow-hidden">
       <div className="overflow-x-auto">
@@ -38,11 +40,11 @@ export default function DataTable({ columns, data, editLinkPrefix }: DataTablePr
                   <td key={col.key} className="px-6 py-4 text-sm text-[var(--color-yan-charcoal)] font-sans">
                     {col.key === 'status' ? (
                       <span className={`px-2.5 py-1 rounded-none text-[10px] font-mono uppercase tracking-widest border ${
-                        row[col.key] === 'Publicado' 
+                        row[col.key] === 'published' || row[col.key] === 'Publicado'
                           ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400' 
                           : 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400'
                       }`}>
-                        {row[col.key]}
+                        {row[col.key] === 'published' ? 'Publicado' : row[col.key] === 'draft' ? 'Borrador' : row[col.key]}
                       </span>
                     ) : (
                       row[col.key]
@@ -54,14 +56,28 @@ export default function DataTable({ columns, data, editLinkPrefix }: DataTablePr
                     <button className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" title="Ver">
                       <Eye className="w-4 h-4" strokeWidth={1.5} />
                     </button>
-                    {editLinkPrefix && (
+                    {editLinkPrefix ? (
                       <Link href={`${editLinkPrefix}/${row.id || i}/editar`} className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" title="Editar">
                         <Edit className="w-4 h-4" strokeWidth={1.5} />
                       </Link>
+                    ) : onEdit ? (
+                      <button 
+                        onClick={() => onEdit(row)} 
+                        className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" 
+                        title="Editar"
+                      >
+                        <Edit className="w-4 h-4" strokeWidth={1.5} />
+                      </button>
+                    ) : null}
+                    {onDelete && (
+                      <button 
+                        onClick={() => onDelete(row.id || i)} 
+                        className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" 
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                      </button>
                     )}
-                    <button className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" title="Eliminar">
-                      <Trash2 className="w-4 h-4" strokeWidth={1.5} />
-                    </button>
                   </div>
                 </td>
               </tr>
