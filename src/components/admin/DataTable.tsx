@@ -16,31 +16,31 @@ interface DataTableProps {
 
 export default function DataTable({ columns, data, editLinkPrefix }: DataTableProps) {
   return (
-    <div className="bg-yan-surface border border-yan-border rounded-lg overflow-hidden">
+    <div className="bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] rounded-none overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-yan-surface-elevated border-b border-yan-border">
+            <tr className="bg-[var(--color-yan-surface-elevated)] border-b border-[var(--color-yan-border)]">
               {columns.map((col) => (
-                <th key={col.key} className="px-6 py-4 text-xs font-semibold text-yan-muted uppercase tracking-wider">
+                <th key={col.key} className="px-6 py-4 text-[10px] font-mono tracking-wider text-[var(--color-yan-stone)] uppercase">
                   {col.label}
                 </th>
               ))}
-              <th className="px-6 py-4 text-right text-xs font-semibold text-yan-muted uppercase tracking-wider">
+              <th className="px-6 py-4 text-right text-[10px] font-mono tracking-wider text-[var(--color-yan-stone)] uppercase">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-yan-border">
+          <tbody className="divide-y divide-[var(--color-yan-border)]">
             {data.map((row, i) => (
-              <tr key={i} className="hover:bg-yan-surface-elevated/50 transition-colors">
+              <tr key={i} className="hover:bg-[var(--color-yan-surface-elevated)]/50 transition-colors">
                 {columns.map((col) => (
-                  <td key={col.key} className="px-6 py-4 text-sm text-foreground">
+                  <td key={col.key} className="px-6 py-4 text-sm text-[var(--color-yan-charcoal)] font-sans">
                     {col.key === 'status' ? (
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      <span className={`px-2.5 py-1 rounded-none text-[10px] font-mono uppercase tracking-widest border ${
                         row[col.key] === 'Publicado' 
-                          ? 'bg-green-500/10 text-green-500 border border-green-500/20' 
-                          : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'
+                          ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400' 
+                          : 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400'
                       }`}>
                         {row[col.key]}
                       </span>
@@ -51,16 +51,16 @@ export default function DataTable({ columns, data, editLinkPrefix }: DataTablePr
                 ))}
                 <td className="px-6 py-4 text-right text-sm">
                   <div className="flex items-center justify-end space-x-2">
-                    <button className="p-1.5 text-yan-muted hover:text-foreground rounded transition-colors" title="Ver">
-                      <Eye className="w-4 h-4" />
+                    <button className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" title="Ver">
+                      <Eye className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                     {editLinkPrefix && (
-                      <Link href={`${editLinkPrefix}/${row.id || i}/editar`} className="p-1.5 text-yan-muted hover:text-yan-accent rounded transition-colors" title="Editar">
-                        <Edit className="w-4 h-4" />
+                      <Link href={`${editLinkPrefix}/${row.id || i}/editar`} className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" title="Editar">
+                        <Edit className="w-4 h-4" strokeWidth={1.5} />
                       </Link>
                     )}
-                    <button className="p-1.5 text-yan-muted hover:text-red-500 rounded transition-colors" title="Eliminar">
-                      <Trash2 className="w-4 h-4" />
+                    <button className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" title="Eliminar">
+                      <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                   </div>
                 </td>
@@ -68,7 +68,7 @@ export default function DataTable({ columns, data, editLinkPrefix }: DataTablePr
             ))}
             {data.length === 0 && (
               <tr>
-                <td colSpan={columns.length + 1} className="px-6 py-12 text-center text-yan-muted">
+                <td colSpan={columns.length + 1} className="px-6 py-12 text-center text-[var(--color-yan-stone)] font-mono text-xs tracking-wider">
                   No hay datos disponibles.
                 </td>
               </tr>

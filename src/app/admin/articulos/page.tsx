@@ -21,36 +21,36 @@ export default function ArticlesPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-6 border-b border-[var(--color-yan-border)]">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">Artículos</h1>
-          <p className="text-yan-muted">Gestiona todos los artículos de la revista.</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-2 font-display text-[var(--color-yan-charcoal)]">Artículos</h1>
+          <p className="text-[var(--color-yan-stone)] text-sm">Gestiona todos los artículos de la revista.</p>
         </div>
-        <Link href="/admin/articulos/nuevo" className="flex items-center px-4 py-2 bg-yan-accent text-white rounded-md hover:bg-yan-accent-dark transition-colors text-sm font-medium">
-          <Plus className="w-4 h-4 mr-2" />
+        <Link href="/admin/articulos/nuevo" className="flex items-center px-5 py-3 bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] hover:bg-[var(--color-yan-red)] rounded-none transition-colors text-[13px] font-medium tracking-wide">
+          <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
           Nuevo Artículo
         </Link>
       </div>
 
-      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-center bg-yan-surface p-4 border border-yan-border rounded-lg">
+      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-center bg-[var(--color-yan-surface)] p-4 border border-[var(--color-yan-border)] rounded-none">
         <div className="flex-1 w-full relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-yan-muted" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--color-yan-stone)]" strokeWidth={1.5} />
           <input 
             type="text" 
             placeholder="Buscar artículos..." 
-            className="w-full pl-9 pr-4 py-2 bg-yan-surface-elevated border border-yan-border rounded-md text-sm outline-none focus:border-yan-accent transition-colors text-foreground"
+            className="w-full pl-9 pr-4 py-2 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none text-sm outline-none transition-colors text-[var(--color-yan-charcoal)] placeholder:text-[var(--color-yan-stone)]"
           />
         </div>
         <div className="flex items-center space-x-4 w-full sm:w-auto">
-          <select className="bg-yan-surface-elevated border border-yan-border rounded-md px-4 py-2 text-sm outline-none focus:border-yan-accent text-foreground w-full sm:w-auto">
+          <select className="bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-4 py-2 text-sm outline-none text-[var(--color-yan-charcoal)] w-full sm:w-auto">
             <option value="">Todas las categorías</option>
             <option value="arte">Arte</option>
             <option value="moda">Moda</option>
             <option value="cultura">Cultura</option>
             <option value="entrevistas">Entrevistas</option>
           </select>
-          <button className="flex items-center px-4 py-2 border border-yan-border rounded-md hover:bg-yan-surface-elevated transition-colors text-sm text-foreground">
-            <Filter className="w-4 h-4 mr-2 text-yan-muted" />
+          <button className="flex items-center px-4 py-2 border border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors text-sm text-[var(--color-yan-charcoal)] font-medium">
+            <Filter className="w-4 h-4 mr-2 text-[var(--color-yan-stone)]" strokeWidth={1.5} />
             Filtros
           </button>
         </div>

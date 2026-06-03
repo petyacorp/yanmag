@@ -23,7 +23,11 @@ export async function GET(request: Request) {
           },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options);
+              try {
+                cookieStore.set(name, value, options);
+              } catch {
+                // Safe ignore for GET Route Handlers
+              }
               cookiesToSetList.push({ name, value, options });
             });
           },

@@ -18,13 +18,13 @@ export default function PagesPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-6 border-b border-[var(--color-yan-border)]">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">Páginas Estáticas</h1>
-          <p className="text-yan-muted">Gestiona las páginas informativas del sitio.</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-2 font-display text-[var(--color-yan-charcoal)]">Páginas Estáticas</h1>
+          <p className="text-[var(--color-yan-stone)] text-sm">Gestiona las páginas informativas del sitio.</p>
         </div>
-        <button className="flex items-center px-4 py-2 bg-yan-accent text-white rounded-md hover:bg-yan-accent-dark transition-colors text-sm font-medium">
-          <Plus className="w-4 h-4 mr-2" />
+        <button className="flex items-center px-5 py-3 bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] hover:bg-[var(--color-yan-red)] rounded-none transition-colors text-[13px] font-medium tracking-wide">
+          <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
           Nueva Página
         </button>
       </div>

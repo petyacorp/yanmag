@@ -32,69 +32,81 @@ export function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-[var(--spine-width)] right-0 z-40 transition-all duration-500 ${
+        className={`fixed top-0 left-0 lg:left-[var(--spine-width)] right-0 z-40 transition-all duration-500 ${
           isScrolled
-            ? 'bg-[var(--color-yan-ivory)]/95 backdrop-blur-md py-4 border-b border-[var(--color-yan-border-light)] shadow-[0_1px_8px_rgba(0,0,0,0.04)]'
-            : 'bg-transparent py-6'
+            ? 'bg-[var(--color-yan-ivory)]/95 backdrop-blur-md py-3 lg:py-4 border-b border-[var(--color-yan-border-light)] shadow-[0_1px_8px_rgba(0,0,0,0.04)]'
+            : 'bg-transparent py-4 lg:py-6'
         }`}
       >
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8 flex items-center justify-between">
-          {/* Mobile menu toggle */}
-          <button
-            className="lg:hidden text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors"
-            onClick={() => setIsMobileMenuOpen(true)}
-            aria-label={t.nav.openMenu}
-          >
-            <Menu className="w-5 h-5" strokeWidth={1.5} />
-          </button>
+        {/* 
+          Use CSS Grid with 3 columns: [left] [center logo] [right]
+          1fr auto 1fr ensures the logo is truly centered 
+        */}
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center gap-4 lg:gap-6">
 
-          {/* Left navigation */}
-          <nav className="hidden lg:flex items-center gap-10">
-            {categories.slice(0, 3).map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/categoria/${cat.slug}`}
-                className="yan-nav-link text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors duration-300"
-              >
-                {cat.name}
-              </Link>
-            ))}
-          </nav>
+          {/* === LEFT COLUMN === */}
+          <div className="flex items-center">
+            {/* Mobile: hamburger menu */}
+            <button
+              className="lg:hidden text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors p-1"
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label={t.nav.openMenu}
+            >
+              <Menu className="w-5 h-5" strokeWidth={1.5} />
+            </button>
 
-          {/* Logo */}
-          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
-            <span className="font-display text-[28px] md:text-[34px] font-semibold tracking-[0.02em]">
+            {/* Desktop: left nav links */}
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+              {categories.slice(0, 3).map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/categoria/${cat.slug}`}
+                  className="yan-nav-link text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors duration-300 whitespace-nowrap"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* === CENTER COLUMN — Logo === */}
+          <Link href="/" className="flex justify-center">
+            <span className="font-display text-[24px] sm:text-[28px] lg:text-[32px] font-semibold tracking-[0.02em] whitespace-nowrap">
               YAN
-              <span className="font-light mx-1"> </span>
+              <span className="font-light mx-0.5 sm:mx-1"> </span>
               MAG
             </span>
           </Link>
 
-          {/* Right actions */}
-          <div className="flex items-center gap-5">
-            <nav className="hidden lg:flex items-center gap-10 mr-3">
+          {/* === RIGHT COLUMN === */}
+          <div className="flex items-center justify-end gap-3 sm:gap-4 lg:gap-5">
+            {/* Desktop: right nav links */}
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8 mr-2">
               {categories.slice(3).map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/categoria/${cat.slug}`}
-                  className="yan-nav-link text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors duration-300"
+                  className="yan-nav-link text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors duration-300 whitespace-nowrap"
                 >
                   {cat.name}
                 </Link>
               ))}
             </nav>
 
-            <LanguageSwitcher />
+            {/* Language switcher — hidden on very small screens, shown in mobile menu instead */}
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
 
-            <div className="w-[1px] h-4 bg-[var(--color-yan-border)] hidden lg:block" />
+            <div className="w-[1px] h-4 bg-[var(--color-yan-border)] hidden sm:block" />
 
             <ThemeToggle />
 
-            <div className="w-[1px] h-4 bg-[var(--color-yan-border)] hidden lg:block" />
+            <div className="w-[1px] h-4 bg-[var(--color-yan-border)] hidden sm:block" />
 
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors duration-300"
+              className="text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors duration-300 p-1"
               aria-label={t.nav.search}
             >
               <Search className="w-[18px] h-[18px]" strokeWidth={1.5} />

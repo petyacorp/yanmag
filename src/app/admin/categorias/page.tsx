@@ -17,13 +17,13 @@ export default function CategoriesPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-6 border-b border-[var(--color-yan-border)]">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">Categorías</h1>
-          <p className="text-yan-muted">Administra las secciones de la revista.</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-2 font-display text-[var(--color-yan-charcoal)]">Categorías</h1>
+          <p className="text-[var(--color-yan-stone)] text-sm">Administra las secciones de la revista.</p>
         </div>
-        <button className="flex items-center px-4 py-2 bg-yan-accent text-white rounded-md hover:bg-yan-accent-dark transition-colors text-sm font-medium">
-          <Plus className="w-4 h-4 mr-2" />
+        <button className="flex items-center px-5 py-3 bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] hover:bg-[var(--color-yan-red)] rounded-none transition-colors text-[13px] font-medium tracking-wide">
+          <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
           Nueva Categoría
         </button>
       </div>
@@ -32,18 +32,18 @@ export default function CategoriesPage() {
         <div className="md:col-span-2">
           <DataTable columns={columns} data={categories} />
         </div>
-        <div className="bg-yan-surface border border-yan-border rounded-lg p-6 h-fit">
-          <h3 className="text-lg font-bold mb-4">Añadir Categoría</h3>
+        <div className="bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] rounded-none p-6 h-fit">
+          <h3 className="text-lg font-bold font-display text-[var(--color-yan-charcoal)] mb-4 pb-2 border-b border-[var(--color-yan-border)]">Añadir Categoría</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-yan-muted mb-1">Nombre</label>
-              <input type="text" className="w-full bg-yan-surface-elevated border border-yan-border rounded-md px-3 py-2 outline-none focus:border-yan-accent text-sm" placeholder="Ej. Arquitectura" />
+              <label className="block text-xs font-mono uppercase tracking-widest text-[var(--color-yan-stone)] mb-2">Nombre</label>
+              <input type="text" className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-3 py-2 outline-none text-sm text-[var(--color-yan-charcoal)] transition-colors" placeholder="Ej. Arquitectura" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-yan-muted mb-1">Slug</label>
-              <input type="text" className="w-full bg-yan-surface-elevated border border-yan-border rounded-md px-3 py-2 outline-none focus:border-yan-accent text-sm" placeholder="ej-arquitectura" />
+              <label className="block text-xs font-mono uppercase tracking-widest text-[var(--color-yan-stone)] mb-2">Slug</label>
+              <input type="text" className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-3 py-2 outline-none text-sm text-[var(--color-yan-charcoal)] transition-colors" placeholder="ej-arquitectura" />
             </div>
-            <button className="w-full py-2 bg-yan-surface-elevated border border-yan-border rounded-md hover:border-yan-accent transition-colors text-sm font-medium">
+            <button className="w-full py-2 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] hover:border-[var(--color-yan-red)] focus:border-[var(--color-yan-red)] rounded-none transition-colors text-sm font-medium text-[var(--color-yan-charcoal)] hover:bg-[var(--color-yan-surface)]">
               Guardar Categoría
             </button>
           </div>

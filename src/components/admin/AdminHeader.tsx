@@ -1,28 +1,14 @@
 "use client";
 
 import { Bell, Search, User, Moon, Sun } from "lucide-react";
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { UserProfile } from "./UserProfile";
 import { LogoutButton } from "./LogoutButton";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function AdminHeader() {
-  const [isDark, setIsDark] = useState(true);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    if (!isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
-
-  useEffect(() => {
-    if (document.documentElement.classList.contains("dark")) {
-      setIsDark(true);
-    }
-  }, []);
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <header className="h-16 bg-[var(--color-yan-surface)] border-b border-[var(--color-yan-border)] flex items-center justify-between px-8 sticky top-0 z-10">

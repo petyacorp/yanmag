@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
+import { AuthCallbackRedirect } from "@/components/providers/AuthCallbackRedirect";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -44,6 +45,7 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <LocaleProvider>
+            <AuthCallbackRedirect />
             {children}
           </LocaleProvider>
         </ThemeProvider>

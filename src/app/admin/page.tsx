@@ -70,7 +70,7 @@ export default function AdminDashboard() {
             <h2 className="text-lg font-display font-semibold text-[var(--color-yan-charcoal)]">Borradores</h2>
           </div>
           <div className="p-6 flex-1 flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 rounded-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] flex items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] flex items-center justify-center mb-4">
               <FileText className="w-6 h-6 text-[var(--color-yan-stone)]" strokeWidth={1.5} />
             </div>
             <p className="text-[var(--color-yan-charcoal)] font-medium mb-1">No hay borradores</p>
