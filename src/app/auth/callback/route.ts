@@ -3,17 +3,16 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/admin';
 
-  let redirectUrl = `${origin}${next}`;
-  const forwardedHost = request.headers.get('x-forwarded-host');
-  const isLocalEnv = process.env.NODE_ENV === 'development';
-  if (!isLocalEnv && forwardedHost) {
-    redirectUrl = `https://${forwardedHost}${next}`;
-  }
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || url.host;
+  const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+  const origin = `${proto}://${host}`;
 
+  let redirectUrl = `${origin}${next}`;
   const response = NextResponse.redirect(redirectUrl);
 
   if (code) {

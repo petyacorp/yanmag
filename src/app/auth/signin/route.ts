@@ -5,7 +5,9 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const origin = url.origin;
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || url.host;
+    const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+    const origin = `${proto}://${host}`;
     const nextParam = url.searchParams.get('next') || '/admin';
 
     const cookieStore = await cookies();
@@ -52,7 +54,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/auth/login?error=signin_failed`);
   } catch (e) {
     console.error('Unexpected error in /auth/signin route', e);
-    const origin = new URL(request.url).origin;
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || new URL(request.url).host;
+    const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+    const origin = `${proto}://${host}`;
     return NextResponse.redirect(`${origin}/auth/login?error=signin_failed`);
   }
 }
