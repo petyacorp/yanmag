@@ -101,7 +101,7 @@ export function ArticlePageClient({ article }: ArticlePageClientProps) {
       .replace(/\[(.*?)\]\((.*?)\)/gim, '<a class="text-[var(--color-yan-red)] hover:underline font-medium" href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
 
       // Blockquotes
-      .replace(/^\> (.*$)/gim, '<blockquote class="border-l-4 border-[var(--color-yan-red)] pl-6 py-2 my-6 italic text-[var(--color-yan-stone)] bg-[var(--color-yan-surface-elevated)]">$1</blockquote>')
+      .replace(/^&gt;\s?(.*$)/gim, '<blockquote class="border-l-4 border-[var(--color-yan-red)] pl-6 py-2 my-6 italic text-[var(--color-yan-stone)] bg-[var(--color-yan-surface-elevated)]">$1</blockquote>')
 
       // Bold
       .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')

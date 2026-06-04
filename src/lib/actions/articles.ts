@@ -16,8 +16,13 @@ export async function getArticles(options?: {
   const supabase = await createClient();
   let query = supabase
     .from('articles')
-    .select('*, category:categories(*), author:profiles(*)', { count: 'exact' })
-    .order('created_at', { ascending: false });
+    .select('*, category:categories(*), author:profiles(*)', { count: 'exact' });
+
+  if (options?.status === 'published') {
+    query = query.order('published_at', { ascending: false });
+  } else {
+    query = query.order('created_at', { ascending: false });
+  }
 
   if (options?.status) {
     query = query.eq('status', options.status);
