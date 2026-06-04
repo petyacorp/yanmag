@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, User, Moon, Sun } from "lucide-react";
+import { Bell, Search, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { UserProfile } from "./UserProfile";
 import { LogoutButton } from "./LogoutButton";
@@ -37,11 +37,8 @@ export default function AdminHeader() {
 
         <LogoutButton />
         
-        <div className="flex items-center gap-3 pl-6 border-l border-[var(--color-yan-border)]">
+        <div className="flex items-center pl-6 border-l border-[var(--color-yan-border)]">
           <UserProfile />
-          <div className="h-9 w-9 rounded-none bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] flex items-center justify-center cursor-pointer hover:border-[var(--color-yan-red)] transition-colors">
-            <User className="w-[18px] h-[18px] text-[var(--color-yan-charcoal)]" strokeWidth={1.5} />
-          </div>
         </div>
       </div>
     </header>

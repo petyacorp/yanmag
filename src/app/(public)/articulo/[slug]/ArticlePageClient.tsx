@@ -62,27 +62,77 @@ export function ArticlePageClient({ article }: ArticlePageClientProps) {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
+
+      // Code Blocks
+      .replace(/\`\`\`([\s\S]*?)\`\`\`/gm, '<pre class="bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] p-4 font-mono text-xs overflow-x-auto my-6 text-[var(--color-yan-charcoal)] block">$1</pre>')
+
+      // Inline Code
+      .replace(/\`([^`\n]+)\`/g, '<code class="bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] px-1.5 py-0.5 font-mono text-xs text-[var(--color-yan-red)]">$1</code>')
+
+      // Tables - parse lines starting and ending with |
+      .replace(/\|(.+)\|/g, (match) => {
+        const cells = match.split('|').slice(1, -1);
+        if (cells.every(c => c.trim().startsWith('---') || c.trim().startsWith(':-') || c.trim().startsWith('-:'))) {
+          return ''; // skip separator rows
+        }
+        return `<tr class="yan-table-row">${cells.map(c => `<td class="px-4 py-3 border-b border-[var(--color-yan-border-light)] text-[14px] md:text-[16px] text-left text-[var(--color-yan-charcoal)]/90">${c.trim()}</td>`).join('')}</tr>`;
+      })
+
+      // Wrap consecutive table rows in table element
+      .replace(/(<tr class="yan-table-row">[\s\S]*?<\/tr>)/g, '<div class="overflow-x-auto my-6 border border-[var(--color-yan-border)] bg-[var(--color-yan-surface)]"><table class="min-w-full divide-y divide-[var(--color-yan-border)]">$1</table></div>')
+      // Merge consecutive table containers
+      .replace(/<\/table><\/div>\s*<div class="overflow-x-auto my-6 border border-\[var\(--color-yan-border\)\] bg-\[var\(--color-yan-surface\)\]"><table class="min-w-full divide-y divide-\[var\(--color-yan-border\)\]">/g, '')
+      // Convert the first row of each table to headers
+      .replace(/<table class="min-w-full divide-y divide-\[var\(--color-yan-border\)\]">\s*<tr class="yan-table-row">([\s\S]*?)<\/tr>/g, (match, rowContent) => {
+        const headerRow = rowContent.replace(/<td class="([^"]+)">([\s\S]*?)<\/td>/g, '<th class="px-4 py-3 bg-[var(--color-yan-surface-elevated)] border-b border-[var(--color-yan-border)] font-display font-semibold text-left text-[var(--color-yan-charcoal)] text-[14px] md:text-[16px]">$2</th>');
+        return `<table class="min-w-full divide-y divide-[var(--color-yan-border)]"><thead><tr class="bg-[var(--color-yan-surface-elevated)]">${headerRow}</tr></thead><tbody>`;
+      })
+      .replace(/<\/table>/g, '</tbody></table>')
+
       // Headers
       .replace(/^### (.*$)/gim, '<h3 class="text-md font-bold font-display mt-8 mb-2 text-[var(--color-yan-charcoal)]">$1</h3>')
       .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold font-display mt-10 mb-4 border-b border-[var(--color-yan-border)] pb-2 text-[var(--color-yan-charcoal)]">$1</h2>')
       .replace(/^# (.*$)/gim, '<h1 class="text-xl font-bold font-display mt-12 mb-6 text-[var(--color-yan-charcoal)]">$1</h1>')
+
       // Images
       .replace(/\!\[(.*?)\]\((.*?)\)/gim, '<img class="my-6 max-w-full border border-[var(--color-yan-border)]" src="$2" alt="$1" />')
+
       // Links
       .replace(/\[(.*?)\]\((.*?)\)/gim, '<a class="text-[var(--color-yan-red)] hover:underline font-medium" href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+
       // Blockquotes
       .replace(/^\> (.*$)/gim, '<blockquote class="border-l-4 border-[var(--color-yan-red)] pl-6 py-2 my-6 italic text-[var(--color-yan-stone)] bg-[var(--color-yan-surface-elevated)]">$1</blockquote>')
+
       // Bold
       .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+
       // Italic
       .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+
       // Strikethrough
       .replace(/~~(.*?)~~/gim, '<del>$1</del>')
+
+      // Bullet list item
+      .replace(/^\s*[-*]\s+(.*$)/gim, '<li class="yan-bullet-item">$1</li>')
+      // Wrap consecutive yan-bullet-item in a single ul
+      .replace(/(<li class="yan-bullet-item">[\s\S]*?<\/li>)/g, (match) => {
+        return `<ul class="list-disc pl-6 mb-5 space-y-2 text-[15px] md:text-[17px] text-[var(--color-yan-charcoal)]/90">${match}</ul>`;
+      })
+      .replace(/<\/ul>\s*<ul class="list-disc pl-6 mb-5 space-y-2 text-\[15px\] md:text-\[17px\] text-\[var\(--color-yan-charcoal\)\]\/90">/g, '')
+
+      // Ordered list item
+      .replace(/^\s*\d+\.\s+(.*$)/gim, '<li class="yan-ordered-item">$1</li>')
+      // Wrap consecutive yan-ordered-item in a single ol
+      .replace(/(<li class="yan-ordered-item">[\s\S]*?<\/li>)/g, (match) => {
+        return `<ol class="list-decimal pl-6 mb-5 space-y-2 text-[15px] md:text-[17px] text-[var(--color-yan-charcoal)]/90">${match}</ol>`;
+      })
+      .replace(/<\/ol>\s*<ol class="list-decimal pl-6 mb-5 space-y-2 text-\[15px\] md:text-\[17px\] text-\[var\(--color-yan-charcoal\)\]\/90">/g, '')
+
       // Paragraph splits
       .split(/\n{2,}/g)
       .map(p => {
         const trimmed = p.trim();
-        if (trimmed.startsWith('<h') || trimmed.startsWith('<img') || trimmed.startsWith('<blockquote')) {
+        if (trimmed.startsWith('<h') || trimmed.startsWith('<img') || trimmed.startsWith('<blockquote') || trimmed.startsWith('<div class="overflow-x-auto') || trimmed.startsWith('<pre') || trimmed.startsWith('<ul') || trimmed.startsWith('<ol')) {
           return p;
         }
         return `<p class="mb-5 text-[15px] md:text-[17px] leading-relaxed text-[var(--color-yan-charcoal)]/90">${p.replace(/\n/g, '<br />')}</p>`;
