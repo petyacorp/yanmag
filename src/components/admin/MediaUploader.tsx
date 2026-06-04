@@ -2,7 +2,8 @@
 
 import { X, Upload, Image as ImageIcon, Loader2, Trash2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { getMediaLibrary, uploadImage, deleteImage } from "@/lib/actions/media";
+import { getMediaLibrary, deleteImage } from "@/lib/actions/media";
+import { createClient as createBrowserClient } from "@/lib/supabase/client";
 
 interface MediaFile {
   name: string;
@@ -54,16 +55,29 @@ export default function MediaUploader({ onClose, onSelect }: { onClose: () => vo
     try {
       setError(null);
       setUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-      const result = await uploadImage(formData);
       
-      if (!result.success) {
-        throw new Error(result.error);
+      const supabase = createBrowserClient();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `articles/${fileName}`;
+
+      const { data, error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw uploadError;
       }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media')
+        .getPublicUrl(data.path);
       
       // Auto-select the uploaded image
-      onSelect(result.url!);
+      onSelect(publicUrl);
     } catch (e: any) {
       console.error("Error uploading file:", e);
       const errorMsg = e?.message || e?.error_description || String(e);
