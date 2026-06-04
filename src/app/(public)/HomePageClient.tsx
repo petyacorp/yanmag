@@ -12,12 +12,12 @@ interface HomePageClientProps {
     excerpt_es: string;
     excerpt_en?: string;
     coverImage: string;
-    category: {
+    category?: {
       name_es: string;
       name_en?: string;
       slug: string;
       color?: string;
-    };
+    } | null;
     date: Date | string;
     is_featured?: boolean;
   }[];
@@ -42,9 +42,9 @@ export function HomePageClient({ articles, siteSettings }: HomePageClientProps) 
       ? art.excerpt_es 
       : (art.excerpt_en || art.excerpt_es || '');
     
-    const catName = isEs 
-      ? art.category.name_es 
-      : (art.category.name_en || art.category.name_es);
+    const catName = art.category
+      ? (isEs ? art.category.name_es : (art.category.name_en || art.category.name_es))
+      : 'Sin categoría';
 
     const dateStr = typeof art.date === 'string'
       ? art.date
@@ -59,11 +59,11 @@ export function HomePageClient({ articles, siteSettings }: HomePageClientProps) 
       title,
       excerpt,
       coverImage: art.coverImage,
-      category: {
+      category: art.category ? {
         name: catName,
         slug: art.category.slug,
         color: art.category.color
-      },
+      } : null,
       date: dateStr,
       is_featured: art.is_featured
     };

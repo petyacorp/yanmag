@@ -51,12 +51,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         content_es: dbArticle.content_es || '',
         content_en: dbArticle.content_en || dbArticle.content_es || '',
         coverImage: dbArticle.cover_image || '/placeholder-image.jpg',
-        category: {
-          name_es: dbArticle.category?.name_es || 'Sin categoría',
-          name_en: dbArticle.category?.name_en || dbArticle.category?.name_es || 'Uncategorized',
-          slug: dbArticle.category?.slug || 'general',
-          color: dbArticle.category?.color || '#A6342A'
-        },
+        category: dbArticle.category ? {
+          name_es: dbArticle.category.name_es,
+          name_en: dbArticle.category.name_en || dbArticle.category.name_es,
+          slug: dbArticle.category.slug,
+          color: dbArticle.category.color || '#A6342A'
+        } : null,
         date: dateObj,
         author: {
           full_name: dbArticle.author?.full_name || 'Redacción YAN MAG',

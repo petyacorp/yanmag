@@ -370,7 +370,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
                 onChange={(e) => setCategoryId(e.target.value)}
                 className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-3 py-2 outline-none text-[var(--color-yan-charcoal)] text-xs"
               >
-                <option value="">Selecciona una categoría...</option>
+                <option value="">Sin categoría</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>{cat.name_es}</option>
                 ))}

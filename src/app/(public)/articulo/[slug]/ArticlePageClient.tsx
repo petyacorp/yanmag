@@ -14,12 +14,12 @@ interface ArticlePageClientProps {
     content_es: string;
     content_en: string;
     coverImage: string;
-    category: {
+    category?: {
       name_es: string;
       name_en: string;
       slug: string;
       color?: string;
-    };
+    } | null;
     date: Date | string;
     author: {
       full_name: string;
@@ -37,9 +37,13 @@ export function ArticlePageClient({ article }: ArticlePageClientProps) {
   const title = isEs ? article.title_es : article.title_en;
   const excerpt = isEs ? article.excerpt_es : article.excerpt_en;
   const content = isEs ? article.content_es : article.content_en;
-  const categoryName = isEs ? article.category.name_es : article.category.name_en;
+  const categoryName = article.category 
+    ? (isEs ? article.category.name_es : article.category.name_en) 
+    : 'Sin categoría';
 
-  const translatedCategoryName = t.nav[article.category.slug as keyof typeof t.nav] || categoryName;
+  const translatedCategoryName = article.category 
+    ? (t.nav[article.category.slug as keyof typeof t.nav] || categoryName) 
+    : categoryName;
 
   // Format date
   const dateStr = typeof article.date === 'string'
@@ -93,7 +97,9 @@ export function ArticlePageClient({ article }: ArticlePageClientProps) {
       {/* Header */}
       <header className="max-w-4xl mx-auto px-6 py-16 md:py-24">
         <div className="flex flex-col items-start gap-6 mb-12">
-          <CategoryBadge name={translatedCategoryName} slug={article.category.slug} color={article.category.color} />
+          {article.category && article.category.slug && (
+            <CategoryBadge name={translatedCategoryName} slug={article.category.slug} color={article.category.color} />
+          )}
           
           <h1 className="font-display text-4xl md:text-6xl lg:text-[72px] font-semibold leading-[1.05] tracking-tight text-[var(--color-yan-charcoal)]">
             {title}
@@ -150,25 +156,27 @@ export function ArticlePageClient({ article }: ArticlePageClientProps) {
         />
 
         {/* Tags */}
-        <div className="mt-24 pt-8 border-t border-[var(--color-yan-border)] flex gap-4 flex-wrap items-center">
-          <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--color-yan-stone)]">
-            {t.article.archivedIn}
-          </span>
-          {article.tags.length > 0 ? (
-            article.tags.map(tag => {
-              const tagName = isEs ? tag.name_es : (tag.name_en || tag.name_es);
-              return (
-                <span key={tagName} className="px-3 py-1.5 text-[11px] font-mono tracking-widest bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] text-[var(--color-yan-charcoal)] hover:border-[var(--color-yan-red)] hover:text-[var(--color-yan-red)] transition-colors cursor-pointer">
-                  {tagName}
-                </span>
-              );
-            })
-          ) : (
-            <span className="px-3 py-1.5 text-[11px] font-mono tracking-widest bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] text-[var(--color-yan-charcoal)]">
-              {translatedCategoryName}
+        {(article.tags.length > 0 || (article.category && article.category.slug)) && (
+          <div className="mt-24 pt-8 border-t border-[var(--color-yan-border)] flex gap-4 flex-wrap items-center">
+            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--color-yan-stone)]">
+              {t.article.archivedIn}
             </span>
-          )}
-        </div>
+            {article.tags.length > 0 ? (
+              article.tags.map(tag => {
+                const tagName = isEs ? tag.name_es : (tag.name_en || tag.name_es);
+                return (
+                  <span key={tagName} className="px-3 py-1.5 text-[11px] font-mono tracking-widest bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] text-[var(--color-yan-charcoal)] hover:border-[var(--color-yan-red)] hover:text-[var(--color-yan-red)] transition-colors cursor-pointer">
+                    {tagName}
+                  </span>
+                );
+              })
+            ) : (
+              <span className="px-3 py-1.5 text-[11px] font-mono tracking-widest bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] text-[var(--color-yan-charcoal)]">
+                {translatedCategoryName}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );

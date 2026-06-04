@@ -10,11 +10,11 @@ interface HeroArticleProps {
   title: string;
   excerpt: string;
   coverImage: string;
-  category: {
+  category?: {
     name: string;
     slug: string;
     color?: string;
-  };
+  } | null;
   date: string;
 }
 
@@ -39,11 +39,13 @@ export function HeroArticle({ slug, title, excerpt, coverImage, category, date }
       <div className="relative z-10 w-full max-w-[1200px] mx-auto px-6 lg:px-8 pb-16 md:pb-24">
         <div className="max-w-3xl">
           <div className="flex items-center gap-4 mb-6">
-            <CategoryBadge
-              name={t.nav[category.slug as keyof typeof t.nav] || category.name}
-              slug={category.slug}
-              color="#FDFCF9"
-            />
+            {category && category.slug && (
+              <CategoryBadge
+                name={t.nav[category.slug as keyof typeof t.nav] || category.name}
+                slug={category.slug}
+                color="#FDFCF9"
+              />
+            )}
             <span className="text-[11px] font-medium text-white/70 tracking-[0.15em] uppercase">
               {date}
             </span>

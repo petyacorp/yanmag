@@ -10,11 +10,11 @@ interface ArticleCardProps {
   title: string;
   excerpt: string;
   coverImage: string;
-  category: {
+  category?: {
     name: string;
     slug: string;
     color?: string;
-  };
+  } | null;
   date: string;
   featured?: boolean;
 }
@@ -44,11 +44,13 @@ export function ArticleCard({ slug, title, excerpt, coverImage, category, date, 
 
       <div className={`flex flex-col justify-center flex-1 ${featured ? 'py-4 md:py-8' : 'py-1'}`}>
         <div className="flex items-center gap-4 mb-4">
-          <CategoryBadge
-            name={t.nav[category.slug as keyof typeof t.nav] || category.name}
-            slug={category.slug}
-            color={category.color}
-          />
+          {category && category.slug && (
+            <CategoryBadge
+              name={t.nav[category.slug as keyof typeof t.nav] || category.name}
+              slug={category.slug}
+              color={category.color}
+            />
+          )}
           <span className="text-[11px] font-medium text-[var(--color-yan-stone)] tracking-[0.15em] uppercase">
             {date}
           </span>

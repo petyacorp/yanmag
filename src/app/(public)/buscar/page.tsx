@@ -44,11 +44,11 @@ function SearchResults() {
             title,
             excerpt,
             coverImage: art.cover_image || '/placeholder-image.jpg',
-            category: {
-              name: catName || 'Sin categoría',
-              slug: art.category?.slug || 'general',
-              color: art.category?.color || '#A6342A'
-            },
+            category: art.category ? {
+              name: catName,
+              slug: art.category.slug,
+              color: art.category.color || '#A6342A'
+            } : null,
             date: dateStr
           };
         });

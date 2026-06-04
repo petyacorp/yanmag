@@ -24,12 +24,12 @@ export default async function HomePage() {
       excerpt_es: art.excerpt_es || '',
       excerpt_en: art.excerpt_en || art.excerpt_es || '',
       coverImage: art.cover_image || '/placeholder-image.jpg',
-      category: {
-        name_es: art.category?.name_es || 'Sin categoría',
-        name_en: art.category?.name_en || art.category?.name_es || 'Uncategorized',
-        slug: art.category?.slug || 'general',
-        color: art.category?.color || '#A6342A'
-      },
+      category: art.category ? {
+        name_es: art.category.name_es,
+        name_en: art.category.name_en || art.category.name_es,
+        slug: art.category.slug,
+        color: art.category.color || '#A6342A'
+      } : null,
       date: new Date(art.published_at || art.created_at),
       is_featured: art.is_featured
     };
