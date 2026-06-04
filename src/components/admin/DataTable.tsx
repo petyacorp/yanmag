@@ -53,9 +53,21 @@ export default function DataTable({ columns, data, editLinkPrefix, onEdit, onDel
                 ))}
                 <td className="px-6 py-4 text-right text-sm">
                   <div className="flex items-center justify-end space-x-2">
-                    <button className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" title="Ver">
-                      <Eye className="w-4 h-4" strokeWidth={1.5} />
-                    </button>
+                    {row.slug ? (
+                      <Link 
+                        href={`/articulo/${row.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors"
+                        title="Previsualizar"
+                      >
+                        <Eye className="w-4 h-4" strokeWidth={1.5} />
+                      </Link>
+                    ) : (
+                      <button className="p-1.5 text-[var(--color-yan-stone)]/40 cursor-not-allowed border border-transparent rounded-none" title="No disponible" disabled>
+                        <Eye className="w-4 h-4" strokeWidth={1.5} />
+                      </button>
+                    )}
                     {editLinkPrefix ? (
                       <Link href={`${editLinkPrefix}/${row.id || i}/editar`} className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] hover:bg-[var(--color-yan-surface-elevated)] rounded-none transition-colors" title="Editar">
                         <Edit className="w-4 h-4" strokeWidth={1.5} />

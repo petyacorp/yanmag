@@ -193,6 +193,17 @@ export default function ArticleEditor({ isEditing = false, article, categories =
           </h1>
         </div>
         <div className="flex space-x-3">
+          {isEditing && slug && (
+            <Link 
+              href={`/articulo/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center px-4 py-2 border border-[var(--color-yan-border)] hover:border-[var(--color-yan-red)] hover:bg-[var(--color-yan-surface-elevated)] text-[var(--color-yan-charcoal)] rounded-none transition-colors text-sm font-medium"
+            >
+              <Eye className="w-4 h-4 mr-2" strokeWidth={1.5} />
+              Previsualizar
+            </Link>
+          )}
           <button 
             onClick={handleSave}
             disabled={saving}

@@ -54,6 +54,7 @@ export default function ArticlesPage() {
 
   const displayData = filteredArticles.map(art => ({
     id: art.id,
+    slug: art.slug,
     title: art.title_es,
     category: art.category?.name_es || 'Sin categoría',
     author: art.author?.full_name || art.author?.email?.split('@')[0] || 'Autor',
