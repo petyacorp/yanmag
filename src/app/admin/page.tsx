@@ -137,11 +137,14 @@ export default async function AdminDashboard() {
               <span>⚠️</span> Pendiente Actualización de Base de Datos
             </h3>
             <p className="text-[13px] text-amber-700/80 dark:text-amber-300/80 leading-relaxed max-w-[800px]">
-              Se han detectado cambios pendientes en el esquema de la base de datos de Supabase. Para que el **Carrusel**, el **Ticker de títulos**, la **lista de tareas (checklist)** y la **creación de carpetas** funcionen correctamente, debes ejecutar los siguientes scripts en el editor de SQL de tu consola de Supabase:
+              Se han detectado cambios pendientes en el esquema de la base de datos de Supabase. Para que el **Carrusel**, el **Ticker de títulos**, la **lista de tareas (checklist)**, la **búsqueda sin acentos** y la **creación de carpetas** funcionen correctamente, debes ejecutar los siguientes scripts en el editor de SQL de tu consola de Supabase:
             </p>
             <div className="mt-3 flex flex-wrap gap-4 text-xs font-mono">
               <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_featured_and_ticker.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_featured_and_ticker.sql
+              </a>
+              <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_unaccent_search.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_unaccent_search.sql
               </a>
               <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/fix_storage_rls.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> fix_storage_rls.sql

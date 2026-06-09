@@ -180,6 +180,25 @@ export async function archiveArticle(id: string) {
 
 export async function searchArticles(query: string) {
   const supabase = await createClient();
+
+  // 1. Try to use the unaccented RPC function if it is defined in the database
+  try {
+    const { data, error } = await supabase
+      .rpc('search_articles', { search_query: query })
+      .select('*, category:categories(*), author:profiles(*)');
+
+    if (!error && data) {
+      return data;
+    }
+
+    if (error) {
+      console.warn('search_articles RPC failed or not found, using ILIKE fallback:', error.message);
+    }
+  } catch (err: any) {
+    console.warn('Error executing search_articles RPC, using ILIKE fallback:', err?.message || err);
+  }
+
+  // 2. Fallback: Standard case-insensitive ILIKE search (which is strict on accents)
   const { data, error } = await supabase
     .from('articles')
     .select('*, category:categories(*), author:profiles(*)')

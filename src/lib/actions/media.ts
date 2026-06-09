@@ -95,9 +95,10 @@ export async function createMediaFolder(folderPath: string, folderName: string) 
     // Upload an empty file to instantiate the folder prefix
     const { error } = await supabase.storage
       .from('media')
-      .upload(fullPath, new Blob([''], { type: 'text/plain' }), {
+      .upload(fullPath, Buffer.from(''), {
         cacheControl: '3600',
         upsert: true,
+        contentType: 'text/plain',
       });
 
     if (error) {
@@ -143,4 +144,106 @@ export async function deleteFolder(folderPath: string) {
   const { error: finalError } = await supabase.storage.from('media').remove([`${cleanFolder}/.keep`]);
   if (finalError) throw finalError;
 }
+
+export async function moveMediaItem(fromPath: string, toPath: string) {
+  try {
+    const supabase = await createClient();
+    const cleanFrom = fromPath.replace(/^\/+|\/+$/g, '');
+    const cleanTo = toPath.replace(/^\/+|\/+$/g, '');
+
+    const { data, error } = await supabase.storage
+      .from('media')
+      .move(cleanFrom, cleanTo);
+
+    if (error) {
+      console.error('[STORAGE MOVE ITEM ERROR]:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (e: any) {
+    console.error('[STORAGE MOVE ITEM CATCH]:', e);
+    return { success: false, error: e?.message || String(e) };
+  }
+}
+
+export async function moveMediaFolder(fromFolder: string, toFolder: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const cleanFrom = fromFolder.replace(/^\/+|\/+$/g, '');
+    const cleanTo = toFolder.replace(/^\/+|\/+$/g, '');
+
+    // 1. List all items in the folder prefix
+    const { data, error } = await supabase.storage.from('media').list(cleanFrom);
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      for (const item of data) {
+        const itemFromPath = `${cleanFrom}/${item.name}`;
+        const itemToPath = `${cleanTo}/${item.name}`;
+        
+        if (item.id) {
+          // It's a file, move it
+          const { error: moveError } = await supabase.storage.from('media').move(itemFromPath, itemToPath);
+          if (moveError) throw moveError;
+        } else {
+          // It's a subfolder, recursively move it
+          const recurseRes = await moveMediaFolder(itemFromPath, itemToPath);
+          if (!recurseRes.success) throw new Error(recurseRes.error);
+        }
+      }
+    }
+
+    // 2. Finally, move the .keep file of this folder if it exists
+    const { data: keepFiles } = await supabase.storage.from('media').list(cleanFrom, { search: '.keep' });
+    if (keepFiles && keepFiles.length > 0) {
+      await supabase.storage.from('media').move(`${cleanFrom}/.keep`, `${cleanTo}/.keep`);
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    console.error('[STORAGE MOVE FOLDER ERROR]:', e);
+    return { success: false, error: e?.message || String(e) };
+  }
+}
+
+export async function moveMedia(fromPath: string, toPath: string, isFolder: boolean) {
+  if (isFolder) {
+    return moveMediaFolder(fromPath, toPath);
+  } else {
+    return moveMediaItem(fromPath, toPath);
+  }
+}
+
+export async function getAllMediaFolders(): Promise<string[]> {
+  try {
+    const supabase = await createClient();
+    const folders: string[] = [];
+
+    async function scan(prefix: string = '') {
+      const cleanPrefix = prefix.replace(/^\/+|\/+$/g, '');
+      const { data, error } = await supabase.storage.from('media').list(cleanPrefix);
+      if (error) return;
+
+      if (data) {
+        if (cleanPrefix) {
+          folders.push(cleanPrefix);
+        }
+
+        for (const item of data) {
+          if (!item.id) {
+            const subPrefix = cleanPrefix ? `${cleanPrefix}/${item.name}` : item.name;
+            await scan(subPrefix);
+          }
+        }
+      }
+    }
+
+    await scan('');
+    return folders;
+  } catch (e) {
+    console.error('Error scanning folders:', e);
+    return [];
+  }
+}
+
 

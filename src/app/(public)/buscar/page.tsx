@@ -29,7 +29,7 @@ function SearchResults() {
         const dbArticles = await searchArticles(query);
 
         // Map articles to localized format for ArticleCard
-        const mapped = dbArticles.map(art => {
+        const mapped = dbArticles.map((art: any) => {
           const title = isEs ? art.title_es : (art.title_en || art.title_es);
           const excerpt = isEs ? (art.excerpt_es || '') : (art.excerpt_en || art.excerpt_es || '');
           const catName = isEs ? art.category?.name_es : (art.category?.name_en || art.category?.name_es);

@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, FolderTree, File, Settings, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, FileText, FolderTree, File, Images, Database, Settings, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Artículos", href: "/admin/articulos", icon: FileText },
+  { name: "Medios", href: "/admin/medios", icon: Images },
   { name: "Categorías", href: "/admin/categorias", icon: FolderTree },
   { name: "Páginas", href: "/admin/paginas", icon: File },
+  { name: "Base de Datos", href: "/admin/base-de-datos", icon: Database },
   { name: "Configuración", href: "/admin/configuracion", icon: Settings },
 ];
 
