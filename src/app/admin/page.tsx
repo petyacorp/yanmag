@@ -2,6 +2,7 @@ import StatsCard from "@/components/admin/StatsCard";
 import { Users, FileText, Eye, TrendingUp, Plus, Clipboard, Save } from "lucide-react";
 import Link from "next/link";
 import { getArticles } from "@/lib/actions/articles";
+import SeedArticlesButton from "@/components/admin/SeedArticlesButton";
 import { getNewsletterSubscribers } from "@/lib/actions/settings";
 import { getCategoryBySlug, createCategory, updateCategory } from "@/lib/actions/categories";
 import { revalidatePath } from "next/cache";
@@ -69,13 +70,16 @@ export default async function AdminDashboard() {
           <h1 className="text-3xl font-display font-semibold text-[var(--color-yan-charcoal)] mb-2">Dashboard</h1>
           <p className="text-[var(--color-yan-stone)] text-sm">Resumen de la actividad reciente y métricas clave.</p>
         </div>
-        <Link 
-          href="/admin/articulos/nuevo"
-          className="flex items-center gap-2 bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] px-5 py-3 hover:bg-[var(--color-yan-red)] transition-colors text-[13px] font-medium tracking-wide"
-        >
-          <Plus className="w-4 h-4" strokeWidth={1.5} />
-          Nuevo Artículo
-        </Link>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <SeedArticlesButton />
+          <Link 
+            href="/admin/articulos/nuevo"
+            className="flex items-center justify-center gap-2 bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] px-5 py-3 hover:bg-[var(--color-yan-red)] transition-colors text-[13px] font-medium tracking-wide"
+          >
+            <Plus className="w-4 h-4" strokeWidth={1.5} />
+            Nuevo Artículo
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
