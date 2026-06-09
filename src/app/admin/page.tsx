@@ -88,8 +88,13 @@ export default async function AdminDashboard() {
     const message = formData.get('pizarraMessage') as string;
     const existing = await getCategoryBySlug('system-pizarra');
     if (existing) {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      const updaterName = user?.user_metadata?.full_name || user?.email || 'Sistema';
+
       await updateCategory(existing.id, {
         description_es: message || '',
+        description_en: updaterName, // store updater email/name
         updated_at: new Date().toISOString()
       } as any);
       revalidatePath('/admin');
@@ -111,6 +116,7 @@ export default async function AdminDashboard() {
         minute: '2-digit' 
       }) 
     : '';
+  const lastUpdater = pizarraCategory?.description_en || '';
 
   return (
     <div className="max-w-[1200px] mx-auto py-4">
@@ -137,11 +143,14 @@ export default async function AdminDashboard() {
               <span>⚠️</span> Pendiente Actualización de Base de Datos
             </h3>
             <p className="text-[13px] text-amber-700/80 dark:text-amber-300/80 leading-relaxed max-w-[800px]">
-              Se han detectado cambios pendientes en el esquema de la base de datos de Supabase. Para que el **Carrusel**, el **Ticker de títulos**, la **lista de tareas (checklist)**, la **búsqueda sin acentos** y la **creación de carpetas** funcionen correctamente, debes ejecutar los siguientes scripts en el editor de SQL de tu consola de Supabase:
+              Se han detectado cambios pendientes en el esquema de la base de datos de Supabase. Para que el **Carrusel**, el **Ticker de títulos**, la **lista de tareas (checklist)** con rastreo de usuarios, la **búsqueda sin acentos** y la **creación de carpetas** funcionen correctamente, debes ejecutar los siguientes scripts en el editor de SQL de tu consola de Supabase:
             </p>
             <div className="mt-3 flex flex-wrap gap-4 text-xs font-mono">
               <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_featured_and_ticker.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_featured_and_ticker.sql
+              </a>
+              <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_task_creator.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_task_creator.sql
               </a>
               <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_unaccent_search.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_unaccent_search.sql
@@ -166,7 +175,7 @@ export default async function AdminDashboard() {
           </h2>
           {lastUpdated && (
             <span className="text-[9px] font-mono text-[var(--color-yan-stone)] uppercase tracking-widest bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] px-2.5 py-0.5 font-bold">
-              Última actualización: {lastUpdated}
+              Última actualización: {lastUpdated}{lastUpdater ? ` por ${lastUpdater}` : ''}
             </span>
           )}
         </div>
@@ -220,7 +229,14 @@ export default async function AdminDashboard() {
               recentArticles.map((article) => (
                 <div key={article.slug} className="p-6 flex items-center justify-between hover:bg-[var(--color-yan-surface-elevated)] transition-colors">
                   <div className="flex-1">
-                    <h3 className="font-medium text-[var(--color-yan-charcoal)] mb-1 leading-snug">{article.title_es}</h3>
+                    <h3 className="font-medium text-[var(--color-yan-charcoal)] mb-1 leading-snug">
+                      <Link 
+                        href={`/admin/articulos/${article.id}/editar`}
+                        className="hover:text-[var(--color-yan-red)] hover:underline transition-colors"
+                      >
+                        {article.title_es}
+                      </Link>
+                    </h3>
                     <div className="flex items-center gap-4 text-[12px] text-[var(--color-yan-stone)] mt-2">
                       <span className="font-mono uppercase tracking-widest text-[10px]">{article.category?.name_es || 'Sin categoría'}</span>
                       <span>•</span>

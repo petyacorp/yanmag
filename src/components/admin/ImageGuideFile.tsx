@@ -12,70 +12,6 @@ export default function ImageGuideFile({ compact = false }: { compact?: boolean 
   const [isOpen, setIsOpen] = useState(false);
   const ambientAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Play retro Resident Evil style file-open synthesizer sound effect (Web Audio API)
-  const playSoundEffect = useCallback((type: "open" | "close") => {
-    try {
-      // First, attempt to play custom assets if they exist in the public directory
-      const customAudio = new Audio(type === "open" ? "/audio/file_open.mp3" : "/audio/file_close.mp3");
-      customAudio.volume = 0.4;
-      
-      customAudio.play().catch(() => {
-        // Fallback: Synthesize an atmospheric RE-style analog sound using Web Audio API
-        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-        if (!AudioContext) return;
-        
-        const ctx = new AudioContext();
-        
-        if (type === "open") {
-          // Low atmospheric page turn/thud + retro mechanical typewriter click
-          const osc1 = ctx.createOscillator();
-          const osc2 = ctx.createOscillator();
-          const gain = ctx.createGain();
-          
-          osc1.type = "sine";
-          osc1.frequency.setValueAtTime(80, ctx.currentTime);
-          osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.35);
-          
-          osc2.type = "triangle";
-          osc2.frequency.setValueAtTime(220, ctx.currentTime);
-          osc2.frequency.setValueAtTime(150, ctx.currentTime + 0.05);
-          osc2.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.25);
-          
-          gain.gain.setValueAtTime(0.25, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
-          
-          osc1.connect(gain);
-          osc2.connect(gain);
-          gain.connect(ctx.destination);
-          
-          osc1.start();
-          osc2.start();
-          osc1.stop(ctx.currentTime + 0.35);
-          osc2.stop(ctx.currentTime + 0.35);
-        } else {
-          // Soft page closing thud
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(60, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.2);
-          
-          gain.gain.setValueAtTime(0.15, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-          
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          
-          osc.start();
-          osc.stop(ctx.currentTime + 0.2);
-        }
-      });
-    } catch (e) {
-      console.warn("Audio Context playback failed or was blocked by browser policies:", e);
-    }
-  }, []);
-
   // Control looping ambient background music based on isOpen state
   useEffect(() => {
     if (isOpen) {
@@ -108,22 +44,19 @@ export default function ImageGuideFile({ compact = false }: { compact?: boolean 
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsOpen(false);
-        playSoundEffect("close");
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [isOpen, playSoundEffect]);
+  }, [isOpen]);
 
   const handleOpen = useCallback(() => {
     setIsOpen(true);
-    playSoundEffect("open");
-  }, [playSoundEffect]);
+  }, []);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
-    playSoundEffect("close");
-  }, [playSoundEffect]);
+  }, []);
 
   return (
     <>

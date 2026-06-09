@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Star, Layers, Loader2, Image as ImageIcon } from "lucide-react";
 import { updateFeaturedPosition } from "@/lib/actions/articles";
+import Link from "next/link";
 
 interface FeaturedArticle {
   id: string;
@@ -119,7 +120,12 @@ export default function FeaturedManager({ articles: initialArticles }: FeaturedM
             {/* Article info */}
             <div className="flex-1 min-w-0">
               <h3 className="text-[13px] font-medium text-[var(--color-yan-charcoal)] truncate leading-tight">
-                {article.title_es}
+                <Link 
+                  href={`/admin/articulos/${article.id}/editar`}
+                  className="hover:text-[var(--color-yan-red)] hover:underline transition-colors"
+                >
+                  {article.title_es}
+                </Link>
               </h3>
               <div className="flex items-center gap-2 mt-1">
                 {article.category && (

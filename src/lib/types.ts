@@ -120,6 +120,7 @@ export interface DashboardTask {
   status: DashboardTaskStatus;
   created_at: string;
   updated_at: string;
+  created_by?: string;
 }
 
 // Helper types for forms

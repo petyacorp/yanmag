@@ -46,6 +46,13 @@ export default function DataTable({ columns, data, editLinkPrefix, onEdit, onDel
                       }`}>
                         {row[col.key] === 'published' ? 'Publicado' : row[col.key] === 'draft' ? 'Borrador' : row[col.key]}
                       </span>
+                    ) : col.key === 'title' && editLinkPrefix ? (
+                      <Link 
+                        href={`${editLinkPrefix}/${row.id}/editar`}
+                        className="font-medium hover:text-[var(--color-yan-red)] hover:underline transition-colors"
+                      >
+                        {row[col.key]}
+                      </Link>
                     ) : (
                       row[col.key]
                     )}

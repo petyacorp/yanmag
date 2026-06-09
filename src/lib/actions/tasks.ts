@@ -24,9 +24,16 @@ export async function createDashboardTask(title: string): Promise<DashboardTask>
   }
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const creator = user?.user_metadata?.full_name || user?.email || 'Sistema';
+
   const { data, error } = await supabase
     .from('dashboard_tasks')
-    .insert({ title: title.trim(), status: 'pending' })
+    .insert({ 
+      title: title.trim(), 
+      status: 'pending',
+      created_by: creator
+    })
     .select()
     .single();
 

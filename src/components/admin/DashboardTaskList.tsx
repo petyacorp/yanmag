@@ -143,13 +143,20 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
                       <Circle className="w-4 h-4 text-[var(--color-yan-stone)]" strokeWidth={1.5} />
                     )}
                   </div>
-                  <span 
-                    className={`text-[13px] text-[var(--color-yan-charcoal)] break-words font-sans leading-relaxed ${
-                      task.status === "completed" ? "line-through text-[var(--color-yan-stone)]" : ""
-                    }`}
-                  >
-                    {task.title}
-                  </span>
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span 
+                      className={`text-[13px] text-[var(--color-yan-charcoal)] break-words font-sans leading-relaxed ${
+                        task.status === "completed" ? "line-through text-[var(--color-yan-stone)]" : ""
+                      }`}
+                    >
+                      {task.title}
+                    </span>
+                    {task.created_by && (
+                      <span className="text-[9px] font-mono text-[var(--color-yan-stone)] mt-0.5 uppercase tracking-wider">
+                        Ingresada por: {task.created_by}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Status Switcher & Delete Actions */}
