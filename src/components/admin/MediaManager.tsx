@@ -5,6 +5,7 @@ import {
   X, Upload, Image as ImageIcon, Loader2, Trash2, Folder, 
   FolderPlus, ChevronRight, ArrowLeft, Copy, Check, Move, Info, Eye
 } from "lucide-react";
+import ImageGuideFile from "@/components/admin/ImageGuideFile";
 import { 
   getMediaLibrary, deleteImage, uploadImage, 
   createMediaFolder, deleteFolder, moveMedia, getAllMediaFolders 
@@ -308,6 +309,9 @@ export default function MediaManager() {
           <button onClick={() => setError(null)} className="ml-4 font-sans font-bold hover:text-red-800 text-lg leading-none">×</button>
         </div>
       )}
+
+      {/* RE "File" — Image Optimization Guide */}
+      <ImageGuideFile />
 
       {/* Folder Navigation Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-[var(--color-yan-border-light)]">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { 
   Database, Table, FileCode, Shield, Code, Layers, 
   HelpCircle, Search, Copy, Check, ChevronRight, Play, Info
@@ -27,18 +27,51 @@ export default function DatabaseVisualizer({ initialData, isSchemaPending }: Dat
     setTimeout(() => setCopiedText(null), 2000);
   };
 
-  // Predefined ER Diagram node coordinates
-  const tablePositions: Record<string, { x: number; y: number }> = {
-    'article_tags': { x: 30, y: 150 },
+  // Predefined ER Diagram node coordinates state (spaced out to avoid initial overlap)
+  const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({
+    'article_tags': { x: 30, y: 230 },
     'tags': { x: 30, y: 30 },
-    'dashboard_tasks': { x: 320, y: 20 },
-    'articles': { x: 320, y: 180 },
-    'categories': { x: 640, y: 180 },
-    'profiles': { x: 640, y: 440 },
-    'pages': { x: 320, y: 550 },
-    'site_settings': { x: 30, y: 330 },
-    'newsletter_subscribers': { x: 30, y: 550 },
+    'dashboard_tasks': { x: 320, y: 30 },
+    'articles': { x: 320, y: 260 },
+    'categories': { x: 640, y: 30 },
+    'profiles': { x: 640, y: 400 },
+    'pages': { x: 320, y: 800 },
+    'site_settings': { x: 30, y: 410 },
+    'newsletter_subscribers': { x: 30, y: 720 },
+  });
+
+  const [draggingTable, setDraggingTable] = useState<string | null>(null);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [tableStartPos, setTableStartPos] = useState({ x: 0, y: 0 });
+
+  // Handle start of table dragging
+  const handleMouseDown = (e: React.MouseEvent, tableName: string) => {
+    if (e.button !== 0) return; // Only drag on left click
+    setDraggingTable(tableName);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setTableStartPos(positions[tableName] || { x: 0, y: 0 });
+    e.preventDefault();
   };
+
+  // Handle table dragging
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!draggingTable) return;
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    
+    setPositions(prev => ({
+      ...prev,
+      [draggingTable]: {
+        x: Math.max(0, tableStartPos.x + dx),
+        y: Math.max(0, tableStartPos.y + dy)
+      }
+    }));
+  }, [draggingTable, dragStart, tableStartPos]);
+
+  // Handle stop of table dragging
+  const handleMouseUp = useCallback(() => {
+    setDraggingTable(null);
+  }, []);
 
   // Group columns by table name
   const tablesMap: Record<string, ColumnInfo[]> = {};
@@ -185,8 +218,8 @@ $$;`;
     const cardHeight = 150;
 
     return initialData.relations.map((rel, index) => {
-      const sourcePos = tablePositions[rel.source_table];
-      const targetPos = tablePositions[rel.target_table];
+      const sourcePos = positions[rel.source_table];
+      const targetPos = positions[rel.target_table];
 
       // Skip drawing if coordinates are not mapped
       if (!sourcePos || !targetPos) return null;
@@ -400,53 +433,68 @@ $$;`;
           ) : (
             /* Main Content active panels */
             <>
-              {/* Tab 1: Interactive Schema Visualizer */}
-              {activeTab === "visualizer" && initialData && (
-                <div className="relative min-w-[950px] min-h-[700px] border border-[var(--color-yan-border-light)] bg-neutral-900/5 dark:bg-neutral-950/20 overflow-hidden select-none p-6">
-                  
-                  {/* SVG background line overlays */}
-                  <svg className="absolute inset-0 pointer-events-none w-full h-full">
-                    <defs>
-                      <marker id="arrow-gray" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="var(--color-yan-border)" />
-                      </marker>
-                      <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="var(--color-yan-red)" />
-                      </marker>
-                    </defs>
-                    {renderSchemaLines()}
-                  </svg>
+               {/* Tab 1: Interactive Schema Visualizer */}
+               {activeTab === "visualizer" && initialData && (
+                 <div 
+                   onMouseMove={handleMouseMove}
+                   onMouseUp={handleMouseUp}
+                   onMouseLeave={handleMouseUp}
+                   className="relative min-w-[950px] min-h-[950px] border border-[var(--color-yan-border-light)] bg-neutral-900/5 dark:bg-neutral-950/20 overflow-hidden select-none p-6"
+                 >
+                   
+                   {/* Instruction Banner inside visualizer */}
+                   <div className="absolute top-4 left-4 bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] px-3 py-1.5 text-[10px] font-mono text-[var(--color-yan-stone)] shadow-sm pointer-events-none z-20">
+                     💡 Consejo: Arrastra los encabezados de las tablas para ordenarlas y evitar que se tapen.
+                   </div>
 
-                  {/* Render Table Cards */}
-                  {tableNames.map((tableName, idx) => {
-                    const columns = tablesMap[tableName];
-                    const pos = tablePositions[tableName] || { x: 100 + (idx % 3) * 300, y: 100 + Math.floor(idx / 3) * 200 };
-                    const isSelected = selectedTable === tableName;
-
-                    return (
-                      <div
-                        key={tableName}
-                        style={{ left: pos.x, top: pos.y }}
-                        onMouseEnter={() => setSelectedTable(tableName)}
-                        onMouseLeave={() => setSelectedTable(null)}
-                        className={`absolute w-60 border bg-[var(--color-yan-surface)] shadow-md transition-all duration-300 z-10 ${
-                          isSelected 
-                            ? "border-[var(--color-yan-red)] shadow-lg scale-[1.02]" 
-                            : "border-[var(--color-yan-border)] hover:border-[var(--color-yan-stone)]"
-                        }`}
-                      >
-                        {/* Table Card Title */}
-                        <div className={`px-3.5 py-2 border-b font-mono font-bold flex items-center justify-between text-[11px] uppercase tracking-wider ${
-                          isSelected ? "bg-[var(--color-yan-red)]/10 text-[var(--color-yan-red)] border-[var(--color-yan-red)]/20" : "bg-[var(--color-yan-surface-elevated)] text-[var(--color-yan-charcoal)] border-[var(--color-yan-border)]"
-                        }`}>
-                          <span className="flex items-center gap-1.5 truncate">
-                            <Table className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
-                            {tableName}
-                          </span>
-                          <span className="text-[9px] text-[var(--color-yan-stone)] shrink-0 font-normal lowercase">
-                            {columns.length} cols
-                          </span>
-                        </div>
+                   {/* SVG background line overlays */}
+                   <svg className="absolute inset-0 pointer-events-none w-full h-full">
+                     <defs>
+                       <marker id="arrow-gray" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                         <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="var(--color-yan-border)" />
+                       </marker>
+                       <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                         <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="var(--color-yan-red)" />
+                       </marker>
+                     </defs>
+                     {renderSchemaLines()}
+                   </svg>
+ 
+                   {/* Render Table Cards */}
+                   {tableNames.map((tableName, idx) => {
+                     const columns = tablesMap[tableName];
+                     const pos = positions[tableName] || { x: 100 + (idx % 3) * 300, y: 100 + Math.floor(idx / 3) * 200 };
+                     const isSelected = selectedTable === tableName;
+ 
+                     return (
+                       <div
+                         key={tableName}
+                         style={{ left: pos.x, top: pos.y }}
+                         onMouseEnter={() => setSelectedTable(tableName)}
+                         onMouseLeave={() => setSelectedTable(null)}
+                         className={`absolute w-60 border bg-[var(--color-yan-surface)] shadow-md transition-shadow duration-300 z-10 ${
+                           isSelected 
+                             ? "border-[var(--color-yan-red)] shadow-lg" 
+                             : "border-[var(--color-yan-border)] hover:border-[var(--color-yan-stone)]"
+                         } ${draggingTable === tableName ? "opacity-90 cursor-grabbing" : ""}`}
+                       >
+                         {/* Table Card Title (Drag handle) */}
+                         <div 
+                           onMouseDown={(e) => handleMouseDown(e, tableName)}
+                           className={`px-3.5 py-2 border-b font-mono font-bold flex items-center justify-between text-[11px] uppercase tracking-wider select-none ${
+                             draggingTable === tableName ? "cursor-grabbing" : "cursor-grab"
+                           } ${
+                             isSelected ? "bg-[var(--color-yan-red)]/10 text-[var(--color-yan-red)] border-[var(--color-yan-red)]/20" : "bg-[var(--color-yan-surface-elevated)] text-[var(--color-yan-charcoal)] border-[var(--color-yan-border)]"
+                           }`}
+                         >
+                           <span className="flex items-center gap-1.5 truncate pointer-events-none">
+                             <Table className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                             {tableName}
+                           </span>
+                           <span className="text-[9px] text-[var(--color-yan-stone)] shrink-0 font-normal lowercase pointer-events-none">
+                             {columns.length} cols
+                           </span>
+                         </div>
 
                         {/* Table Columns List */}
                         <div className="py-1 divide-y divide-[var(--color-yan-border-light)] max-h-56 overflow-y-auto">

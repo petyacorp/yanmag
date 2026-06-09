@@ -1,6 +1,7 @@
 "use client";
 
 import { X, Upload, Image as ImageIcon, Loader2, Trash2, Folder, FolderPlus, ChevronRight, ArrowLeft } from "lucide-react";
+import ImageGuideFile from "@/components/admin/ImageGuideFile";
 import { useState, useEffect, useRef } from "react";
 import { getMediaLibrary, deleteImage, uploadImage, createMediaFolder, deleteFolder } from "@/lib/actions/media";
 
@@ -190,6 +191,10 @@ export default function MediaUploader({ onClose, onSelect }: { onClose: () => vo
               <button onClick={() => setError(null)} className="ml-4 font-sans font-bold hover:text-red-800 text-lg leading-none">×</button>
             </div>
           )}
+
+          {/* Image Optimization Guidelines */}
+          {/* RE "File" — Image Optimization Guide (compact) */}
+          <ImageGuideFile compact />
 
           {activeTab === 'upload' ? (
             <div 
