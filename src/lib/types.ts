@@ -38,6 +38,8 @@ export interface Tag {
   created_at: string;
 }
 
+export type FeaturedPosition = 'carousel' | 'hero_featured' | null;
+
 export interface Article {
   id: string;
   slug: string;
@@ -53,6 +55,7 @@ export interface Article {
   author_id: string | null;
   status: ArticleStatus;
   is_featured: boolean;
+  featured_position: FeaturedPosition;
   meta_title: string | null;
   meta_description: string | null;
   published_at: string | null;
@@ -94,6 +97,8 @@ export interface SiteSettings {
   default_meta_title: string | null;
   default_meta_description: string | null;
   google_analytics_id: string | null;
+  ticker_items_es: string[] | null;
+  ticker_items_en: string[] | null;
   updated_at: string;
 }
 

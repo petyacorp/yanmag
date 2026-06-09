@@ -76,3 +76,48 @@ export async function unsubscribeNewsletter(email: string) {
 
   if (error) throw error;
 }
+
+export async function getTickerItems(): Promise<{ items_es: string[]; items_en: string[] }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('ticker_items_es, ticker_items_en')
+    .limit(1)
+    .single();
+
+  if (error || !data) {
+    return { items_es: [], items_en: [] };
+  }
+
+  return {
+    items_es: (data.ticker_items_es as string[]) || [],
+    items_en: (data.ticker_items_en as string[]) || [],
+  };
+}
+
+export async function updateTickerItems(items_es: string[], items_en: string[]) {
+  const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from('site_settings')
+    .select('id')
+    .limit(1)
+    .single();
+
+  if (!existing) throw new Error('Site settings not found');
+
+  const { data, error } = await supabase
+    .from('site_settings')
+    .update({
+      ticker_items_es: items_es,
+      ticker_items_en: items_en,
+    })
+    .eq('id', existing.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  revalidatePath('/');
+  revalidatePath('/admin');
+  return data;
+}

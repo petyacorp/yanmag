@@ -1,19 +1,46 @@
 import StatsCard from "@/components/admin/StatsCard";
 import { Users, FileText, Eye, TrendingUp, Plus, Clipboard, Save } from "lucide-react";
 import Link from "next/link";
-import { getArticles } from "@/lib/actions/articles";
+import { getArticles, getArticlesForFeaturedManager } from "@/lib/actions/articles";
 import SeedArticlesButton from "@/components/admin/SeedArticlesButton";
-import { getNewsletterSubscribers } from "@/lib/actions/settings";
+import { getNewsletterSubscribers, getTickerItems } from "@/lib/actions/settings";
 import { getCategoryBySlug, createCategory, updateCategory } from "@/lib/actions/categories";
 import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import TickerEditor from "@/components/admin/TickerEditor";
+import FeaturedManager from "@/components/admin/FeaturedManager";
 
 export default async function AdminDashboard() {
+  // Promote user to admin if in authorized emails list
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user && user.email) {
+    const ADMIN_EMAILS = ['nicko.pereira@gmail.com', 'gianfrandres@gmail.com', 'petyacorp@gmail.com'];
+    if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+      if (profile && profile.role !== 'admin') {
+        await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.id);
+      }
+    }
+  }
+
   // Fetch real articles count and recent posts
   const { articles: recentArticles, count: articlesCount } = await getArticles({ limit: 4 });
   
   // Fetch real subscribers count
   const subscribers = await getNewsletterSubscribers();
   const subscribersCount = subscribers.filter(s => s.is_active).length;
+
+  // Fetch ticker items for the editor
+  const tickerItems = await getTickerItems();
+
+  // Fetch articles for featured manager (with error handling if column doesn't exist yet)
+  let featuredArticles: Awaited<ReturnType<typeof getArticlesForFeaturedManager>> = [];
+  try {
+    featuredArticles = await getArticlesForFeaturedManager();
+  } catch {
+    featuredArticles = [];
+  }
 
   // Fetch or create system-pizarra category for the whiteboard
   let pizarraCategory = await getCategoryBySlug('system-pizarra');
@@ -88,6 +115,11 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
+      {/* Featured Manager — Full Width */}
+      <div className="mb-8">
+        <FeaturedManager articles={featuredArticles as any} />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)]">
           <div className="px-6 py-5 border-b border-[var(--color-yan-border)] flex justify-between items-center">
@@ -130,12 +162,18 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-6">
+          {/* Ticker Editor Widget */}
+          <TickerEditor 
+            initialItemsEs={tickerItems.items_es} 
+            initialItemsEn={tickerItems.items_en} 
+          />
+
           {/* Functional Pizarra Widget */}
           <div className="bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] p-6 flex flex-col">
             <div className="flex items-center justify-between pb-3 border-b border-[var(--color-yan-border)] mb-4">
-              <h2 className="text-lg font-display font-semibold text-[var(--color-yan-charcoal)] flex items-center gap-2">
-                <Clipboard className="w-5 h-5 text-[var(--color-yan-red)]" strokeWidth={1.5} />
+              <h2 className="text-base font-display font-semibold text-[var(--color-yan-charcoal)] flex items-center gap-2">
+                <Clipboard className="w-4 h-4 text-[var(--color-yan-red)]" strokeWidth={1.5} />
                 Pizarra de Redacción
               </h2>
               {lastUpdated && (
@@ -150,14 +188,14 @@ export default async function AdminDashboard() {
                 name="pizarraMessage"
                 defaultValue={pizarraCategory?.description_es || ''}
                 placeholder="Escribe un anuncio o nota aquí para todo el equipo..."
-                className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] p-3 text-[13px] text-[var(--color-yan-charcoal)] outline-none resize-none h-44 transition-colors font-sans leading-relaxed"
+                className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] p-3 text-[13px] text-[var(--color-yan-charcoal)] outline-none resize-none h-36 transition-colors font-sans leading-relaxed"
               ></textarea>
               
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2 w-full bg-[var(--color-yan-charcoal)] hover:bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] py-2 text-[12px] font-medium tracking-wide transition-colors"
+                className="flex items-center justify-center gap-2 w-full bg-[var(--color-yan-charcoal)] hover:bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] py-2 text-[11px] font-medium tracking-wide transition-colors"
               >
-                <Save className="w-4 h-4" strokeWidth={1.5} />
+                <Save className="w-3.5 h-3.5" strokeWidth={1.5} />
                 Guardar Pizarra
               </button>
             </form>

@@ -1,39 +1,47 @@
 'use client';
 
 import { HeroArticle } from '@/components/ui/HeroArticle';
+import { HeroCarousel } from '@/components/ui/HeroCarousel';
 import { ArticleCard } from '@/components/ui/ArticleCard';
 import { useLocale } from '@/components/providers/LocaleProvider';
 
-interface HomePageClientProps {
-  articles: {
+interface ArticleData {
+  slug: string;
+  title_es: string;
+  title_en?: string;
+  excerpt_es: string;
+  excerpt_en?: string;
+  coverImage: string;
+  category?: {
+    name_es: string;
+    name_en?: string;
     slug: string;
-    title_es: string;
-    title_en?: string;
-    excerpt_es: string;
-    excerpt_en?: string;
-    coverImage: string;
-    category?: {
-      name_es: string;
-      name_en?: string;
-      slug: string;
-      color?: string;
-    } | null;
-    date: Date | string;
-    is_featured?: boolean;
-  }[];
+    color?: string;
+  } | null;
+  date: Date | string;
+  is_featured?: boolean;
+}
+
+interface HomePageClientProps {
+  articles: ArticleData[];
+  carouselArticles?: ArticleData[];
   siteSettings: {
     tagline_es?: string | null;
     tagline_en?: string | null;
   } | null;
+  tickerItems?: {
+    items_es: string[];
+    items_en: string[];
+  };
 }
 
-export function HomePageClient({ articles, siteSettings }: HomePageClientProps) {
+export function HomePageClient({ articles, carouselArticles, siteSettings, tickerItems }: HomePageClientProps) {
   const { locale, t } = useLocale();
 
   const isEs = locale === 'es';
 
-  // Map articles to localized fields
-  const localizedArticles = articles.map(art => {
+  // Helper to localize an article
+  const localizeArticle = (art: ArticleData) => {
     const title = isEs 
       ? art.title_es 
       : (art.title_en || art.title_es);
@@ -67,15 +75,35 @@ export function HomePageClient({ articles, siteSettings }: HomePageClientProps) 
       date: dateStr,
       is_featured: art.is_featured
     };
-  });
+  };
 
-  // Find the hero article (first featured article, or the first article if none is featured)
-  const heroArticle = localizedArticles.find(a => a.is_featured) || localizedArticles[0];
+  // Localize all articles
+  const localizedArticles = articles.map(localizeArticle);
+
+  // Localize carousel articles
+  const localizedCarouselArticles = (carouselArticles || []).map(localizeArticle);
+
+  // Determine hero: use carousel if available, else single hero
+  const hasCarousel = localizedCarouselArticles.length > 0;
+
+  // If no carousel, find a single hero article (first featured or first article)
+  const heroArticle = !hasCarousel
+    ? (localizedArticles.find(a => a.is_featured) || localizedArticles[0])
+    : null;
   
-  // Grid articles are everything else
-  const gridArticles = heroArticle 
-    ? localizedArticles.filter(a => a.slug !== heroArticle.slug)
-    : localizedArticles;
+  // Grid articles = all minus hero (if single hero mode) or all (carousel mode shows them all below)
+  const gridArticles = hasCarousel
+    ? localizedArticles
+    : heroArticle 
+      ? localizedArticles.filter(a => a.slug !== heroArticle.slug)
+      : localizedArticles;
+
+  // Ticker items: use DB items if available, fallback to translations
+  const tickerTexts = (() => {
+    const dbItems = isEs ? tickerItems?.items_es : tickerItems?.items_en;
+    if (dbItems && dbItems.length > 0) return dbItems;
+    return t.trending.items;
+  })();
 
   // Localized tagline
   const tagline = siteSettings 
@@ -84,7 +112,12 @@ export function HomePageClient({ articles, siteSettings }: HomePageClientProps) 
 
   return (
     <>
-      {heroArticle ? (
+      {/* Hero Section */}
+      {hasCarousel ? (
+        <section className="-mt-24 md:-mt-32">
+          <HeroCarousel slides={localizedCarouselArticles} />
+        </section>
+      ) : heroArticle ? (
         <section className="-mt-24 md:-mt-32">
           <HeroArticle {...heroArticle} />
         </section>
@@ -94,22 +127,22 @@ export function HomePageClient({ articles, siteSettings }: HomePageClientProps) 
         </div>
       )}
 
-      {/* Trending Strip */}
+      {/* Trending Strip (Dynamic Ticker) */}
       <div className="bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] overflow-hidden py-2 border-y border-[var(--color-yan-red-dark)]">
         <div className="animate-marquee whitespace-nowrap flex gap-12 font-mono text-[11px] tracking-[0.2em] uppercase">
-          {t.trending.items.map((item, i) => (
+          {tickerTexts.map((item, i) => (
             <span key={i}>
               {item}
-              {i < t.trending.items.length - 1 && (
+              {i < tickerTexts.length - 1 && (
                 <span className="opacity-50 ml-12">/</span>
               )}
             </span>
           ))}
           {/* Duplicate for seamless loop */}
-          {t.trending.items.map((item, i) => (
+          {tickerTexts.map((item, i) => (
             <span key={`dup-${i}`}>
               {item}
-              {i < t.trending.items.length - 1 && (
+              {i < tickerTexts.length - 1 && (
                 <span className="opacity-50 ml-12">/</span>
               )}
             </span>

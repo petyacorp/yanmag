@@ -305,4 +305,54 @@
   .yan-card-accent:hover::after {
     width: 100%;
   }
+
+  /* ========================================
+     Hero Carousel Animations
+     ======================================== */
+  @keyframes carousel-text-in {
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-carousel-text-in {
+    animation: carousel-text-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes carousel-excerpt-in {
+    0% {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-carousel-excerpt-in {
+    animation: carousel-excerpt-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  }
+
+  @keyframes carousel-cta-in {
+    0% {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-carousel-cta-in {
+    animation: carousel-cta-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+  }
+
+  @keyframes carousel-progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
 }

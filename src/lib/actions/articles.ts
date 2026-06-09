@@ -427,3 +427,80 @@ export async function seedArticles() {
 
   return { success: true, count: data?.length || 0 };
 }
+
+export async function getCarouselArticles() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*, category:categories(*), author:profiles(*)')
+    .eq('status', 'published')
+    .eq('featured_position', 'carousel')
+    .order('updated_at', { ascending: false })
+    .limit(5);
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getHeroFeaturedArticle() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*, category:categories(*), author:profiles(*)')
+    .eq('status', 'published')
+    .eq('featured_position', 'hero_featured')
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateFeaturedPosition(articleId: string, position: 'carousel' | 'hero_featured' | null) {
+  const supabase = await createClient();
+  
+  // If setting hero_featured, clear any existing hero_featured first (only 1 allowed)
+  if (position === 'hero_featured') {
+    await supabase
+      .from('articles')
+      .update({ featured_position: null })
+      .eq('featured_position', 'hero_featured');
+  }
+
+  // Check carousel limit (max 5)
+  if (position === 'carousel') {
+    const { count } = await supabase
+      .from('articles')
+      .select('id', { count: 'exact', head: true })
+      .eq('featured_position', 'carousel');
+    
+    if ((count || 0) >= 5) {
+      throw new Error('El carrusel ya tiene 5 artículos. Elimina uno antes de agregar otro.');
+    }
+  }
+
+  const { data, error } = await supabase
+    .from('articles')
+    .update({ featured_position: position })
+    .eq('id', articleId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  
+  revalidatePath('/');
+  revalidatePath('/admin');
+  return data;
+}
+
+export async function getArticlesForFeaturedManager() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('articles')
+    .select('id, slug, title_es, title_en, cover_image, status, is_featured, featured_position, category:categories(name_es, slug, color), published_at, created_at')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
