@@ -1,4 +1,4 @@
-import { getArticles, getCarouselArticles } from '@/lib/actions/articles';
+import { getArticles, getCarouselArticles, getHeroFeaturedArticle } from '@/lib/actions/articles';
 import { getSiteSettings, getTickerItems } from '@/lib/actions/settings';
 import { HomePageClient } from './HomePageClient';
 
@@ -11,10 +11,20 @@ export default async function HomePage() {
   // Fetch ticker items from DB
   const tickerItems = await getTickerItems();
 
-  // Fetch carousel articles
+  // Fetch carousel articles and the hero article
   let carouselDbArticles: Awaited<ReturnType<typeof getCarouselArticles>> = [];
   try {
-    carouselDbArticles = await getCarouselArticles();
+    const [carousel, hero] = await Promise.all([
+      getCarouselArticles(),
+      getHeroFeaturedArticle().catch(() => null)
+    ]);
+    
+    if (hero) {
+      // Put the hero article first, and filter it out from the remaining carousel articles if present
+      carouselDbArticles = [hero, ...carousel.filter(a => a.id !== hero.id)];
+    } else {
+      carouselDbArticles = carousel;
+    }
   } catch {
     // Column may not exist yet if migration hasn't run
     carouselDbArticles = [];

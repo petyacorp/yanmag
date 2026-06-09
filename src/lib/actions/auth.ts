@@ -13,6 +13,9 @@ export async function signInWithGoogle(redirectTo?: string) {
     provider: 'google',
     options: {
       redirectTo: `${origin}/auth/callback?next=${redirectTo || '/admin'}`,
+      queryParams: {
+        prompt: 'select_account',
+      },
     },
   });
 

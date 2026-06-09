@@ -46,16 +46,16 @@ export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t.newsletter.placeholder}
           required
-          className={`flex-1 py-3 px-4 text-sm border focus:outline-none focus:border-[var(--color-yan-red)] transition-colors ${
+          className={`flex-1 py-3 px-4 text-sm border focus:outline-none focus:border-yan-red transition-colors ${
             isDark
-              ? 'bg-transparent border-white/20 text-[var(--color-yan-ivory)] placeholder:text-white/40'
-              : 'bg-[var(--color-yan-surface)] border-[var(--color-yan-border)] text-[var(--color-yan-charcoal)] placeholder:text-[var(--color-yan-stone)]'
+              ? 'bg-transparent border-white/20 text-yan-ivory placeholder:text-white/40'
+              : 'bg-yan-surface border-yan-border text-yan-charcoal placeholder:text-yan-stone'
           }`}
         />
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="px-5 py-3 bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] hover:bg-[var(--color-yan-red-dark)] transition-colors duration-300 disabled:opacity-50 flex items-center"
+          className="px-5 py-3 bg-yan-red text-yan-ivory hover:bg-yan-red-dark transition-colors duration-300 disabled:opacity-50 flex items-center"
           aria-label={t.newsletter.subscribe}
         >
           {status === 'loading' ? (
@@ -65,7 +65,7 @@ export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
           )}
         </button>
       </div>
-      <p className={`text-[11px] tracking-wide ${isDark ? 'text-white/30' : 'text-[var(--color-yan-stone)]'}`}>
+      <p className={`text-[11px] tracking-wide ${isDark ? 'text-white/30' : 'text-yan-stone'}`}>
         {t.newsletter.disclaimer}
       </p>
     </form>

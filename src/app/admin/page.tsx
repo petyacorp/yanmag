@@ -2,13 +2,15 @@ import StatsCard from "@/components/admin/StatsCard";
 import { Users, FileText, Eye, TrendingUp, Plus, Clipboard, Save } from "lucide-react";
 import Link from "next/link";
 import { getArticles, getArticlesForFeaturedManager } from "@/lib/actions/articles";
-import SeedArticlesButton from "@/components/admin/SeedArticlesButton";
-import { getNewsletterSubscribers, getTickerItems } from "@/lib/actions/settings";
+import { getNewsletterSubscribers, getTickerItems, getSiteSettings } from "@/lib/actions/settings";
 import { getCategoryBySlug, createCategory, updateCategory } from "@/lib/actions/categories";
+import { getDashboardTasks } from "@/lib/actions/tasks";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import TickerEditor from "@/components/admin/TickerEditor";
 import FeaturedManager from "@/components/admin/FeaturedManager";
+import QuoteEditor from "@/components/admin/QuoteEditor";
+import DashboardTaskList from "@/components/admin/DashboardTaskList";
 
 export default async function AdminDashboard() {
   // Promote user to admin if in authorized emails list
@@ -34,11 +36,31 @@ export default async function AdminDashboard() {
   // Fetch ticker items for the editor
   const tickerItems = await getTickerItems();
 
+  // Fetch site settings for QuoteEditor
+  const settings = await getSiteSettings();
+  const taglineEs = settings?.tagline_es || "";
+  const taglineEn = settings?.tagline_en || "";
+  const quoteAuthor = settings?.quote_author || "";
+
+  let isSchemaPending = false;
+
+  // Fetch dashboard tasks (with error handling if table doesn't exist yet)
+  let dashboardTasks: Awaited<ReturnType<typeof getDashboardTasks>> = [];
+  try {
+    dashboardTasks = await getDashboardTasks();
+  } catch (err: any) {
+    isSchemaPending = true;
+    dashboardTasks = [];
+  }
+
   // Fetch articles for featured manager (with error handling if column doesn't exist yet)
   let featuredArticles: Awaited<ReturnType<typeof getArticlesForFeaturedManager>> = [];
   try {
     featuredArticles = await getArticlesForFeaturedManager();
-  } catch {
+  } catch (err: any) {
+    if (err?.message?.includes('featured_position') || err?.code === 'PGRST204') {
+      isSchemaPending = true;
+    }
     featuredArticles = [];
   }
 
@@ -98,7 +120,6 @@ export default async function AdminDashboard() {
           <p className="text-[var(--color-yan-stone)] text-sm">Resumen de la actividad reciente y métricas clave.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <SeedArticlesButton />
           <Link 
             href="/admin/articulos/nuevo"
             className="flex items-center justify-center gap-2 bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] px-5 py-3 hover:bg-[var(--color-yan-red)] transition-colors text-[13px] font-medium tracking-wide"
@@ -108,6 +129,69 @@ export default async function AdminDashboard() {
           </Link>
         </div>
       </div>
+
+      {isSchemaPending && (
+        <div className="mb-8 p-6 bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 rounded-none flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+          <div className="flex-1">
+            <h3 className="font-display font-semibold text-base mb-1 flex items-center gap-2">
+              <span>⚠️</span> Pendiente Actualización de Base de Datos
+            </h3>
+            <p className="text-[13px] text-amber-700/80 dark:text-amber-300/80 leading-relaxed max-w-[800px]">
+              Se han detectado cambios pendientes en el esquema de la base de datos de Supabase. Para que el **Carrusel**, el **Ticker de títulos**, la **lista de tareas (checklist)** y la **creación de carpetas** funcionen correctamente, debes ejecutar los siguientes scripts en el editor de SQL de tu consola de Supabase:
+            </p>
+            <div className="mt-3 flex flex-wrap gap-4 text-xs font-mono">
+              <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_featured_and_ticker.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_featured_and_ticker.sql
+              </a>
+              <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/fix_storage_rls.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> fix_storage_rls.sql
+              </a>
+            </div>
+          </div>
+          <div className="bg-amber-500/20 text-amber-800 dark:text-amber-300 font-mono text-[10px] px-3 py-1.5 uppercase tracking-wider font-semibold">
+            Esquema Incompleto
+          </div>
+        </div>
+      )}
+
+      {/* Highlighted Pizarra Widget (Editorial notice board) */}
+      <div className="bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] border-l-4 border-l-[var(--color-yan-red)] p-6 mb-8 shadow-sm">
+        <div className="flex items-center justify-between pb-3 border-b border-[var(--color-yan-border)] mb-4">
+          <h2 className="text-base font-display font-semibold text-[var(--color-yan-charcoal)] flex items-center gap-2">
+            <Clipboard className="w-4 h-4 text-[var(--color-yan-red)]" strokeWidth={1.5} />
+            Pizarra de Redacción
+          </h2>
+          {lastUpdated && (
+            <span className="text-[9px] font-mono text-[var(--color-yan-stone)] uppercase tracking-widest bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] px-2.5 py-0.5 font-bold">
+              Última actualización: {lastUpdated}
+            </span>
+          )}
+        </div>
+        
+        <form action={savePizarraMessage} className="flex flex-col md:flex-row gap-4 items-stretch">
+          <textarea
+            name="pizarraMessage"
+            defaultValue={pizarraCategory?.description_es || ''}
+            placeholder="Escribe un anuncio, recordatorio o nota aquí para todo el equipo de redacción..."
+            className="flex-1 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] p-4 text-[13px] text-[var(--color-yan-charcoal)] outline-none resize-none h-24 transition-colors font-sans leading-relaxed shadow-inner"
+          ></textarea>
+          
+          <div className="flex flex-col justify-center gap-3 w-full md:w-56 shrink-0">
+            <button
+              type="submit"
+              className="flex items-center justify-center gap-2 w-full bg-[var(--color-yan-charcoal)] hover:bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] py-3 text-[11px] font-mono uppercase tracking-widest font-semibold transition-colors"
+            >
+              <Save className="w-3.5 h-3.5" strokeWidth={1.5} />
+              Guardar Nota
+            </button>
+            <p className="text-[10px] text-[var(--color-yan-stone)] font-mono leading-normal text-center md:text-left">
+              * Este mensaje será visible para todos los redactores y editores al ingresar al panel.
+            </p>
+          </div>
+        </form>
+      </div>
+
+      <DashboardTaskList initialTasks={dashboardTasks} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {stats.map((stat, i) => (
@@ -169,37 +253,11 @@ export default async function AdminDashboard() {
             initialItemsEn={tickerItems.items_en} 
           />
 
-          {/* Functional Pizarra Widget */}
-          <div className="bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] p-6 flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-[var(--color-yan-border)] mb-4">
-              <h2 className="text-base font-display font-semibold text-[var(--color-yan-charcoal)] flex items-center gap-2">
-                <Clipboard className="w-4 h-4 text-[var(--color-yan-red)]" strokeWidth={1.5} />
-                Pizarra de Redacción
-              </h2>
-              {lastUpdated && (
-                <span className="text-[9px] font-mono text-[var(--color-yan-stone)] uppercase">
-                  Act: {lastUpdated}
-                </span>
-              )}
-            </div>
-            
-            <form action={savePizarraMessage} className="flex flex-col gap-4">
-              <textarea
-                name="pizarraMessage"
-                defaultValue={pizarraCategory?.description_es || ''}
-                placeholder="Escribe un anuncio o nota aquí para todo el equipo..."
-                className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] p-3 text-[13px] text-[var(--color-yan-charcoal)] outline-none resize-none h-36 transition-colors font-sans leading-relaxed"
-              ></textarea>
-              
-              <button
-                type="submit"
-                className="flex items-center justify-center gap-2 w-full bg-[var(--color-yan-charcoal)] hover:bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] py-2 text-[11px] font-medium tracking-wide transition-colors"
-              >
-                <Save className="w-3.5 h-3.5" strokeWidth={1.5} />
-                Guardar Pizarra
-              </button>
-            </form>
-          </div>
+          <QuoteEditor
+            initialTaglineEs={taglineEs}
+            initialTaglineEn={taglineEn}
+            initialQuoteAuthor={quoteAuthor}
+          />
 
           <div className="bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] flex flex-col">
             <div className="px-6 py-5 border-b border-[var(--color-yan-border)]">

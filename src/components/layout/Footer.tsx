@@ -45,9 +45,9 @@ export function Footer() {
   }, [locale, t.nav]);
 
   return (
-    <footer className="bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] mt-24">
+    <footer className="bg-yan-charcoal text-yan-ivory mt-24">
       {/* Red accent line at top of footer */}
-      <div className="h-[2px] bg-[var(--color-yan-red)]" />
+      <div className="h-[2px] bg-yan-red" />
 
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8 py-20 lg:py-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-16 lg:gap-20">
@@ -55,18 +55,18 @@ export function Footer() {
           {/* Brand column */}
           <div className="md:col-span-4 flex flex-col gap-6">
             <Link href="/" className="inline-block">
-              <span className="font-display text-4xl font-semibold tracking-[0.02em] text-[var(--color-yan-ivory)]">
+              <span className="font-display text-4xl font-semibold tracking-[0.02em] text-yan-ivory">
                 YAN MAG
               </span>
             </Link>
-            <p className="text-[var(--color-yan-stone)] text-[15px] leading-relaxed max-w-sm">
+            <p className="text-yan-stone text-[15px] leading-relaxed max-w-sm">
               {t.footer.tagline}
             </p>
           </div>
 
           {/* Navigation column */}
           <div className="md:col-span-3 md:col-start-6">
-            <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-stone)] mb-6">
+            <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-yan-stone mb-6">
               {t.footer.explore}
             </h4>
             <nav className="flex flex-col gap-3">
@@ -74,7 +74,7 @@ export function Footer() {
                 <Link
                   key={cat.slug}
                   href={`/categoria/${cat.slug}`}
-                  className="text-[var(--color-yan-stone)] hover:text-[var(--color-yan-ivory)] transition-colors duration-300 text-[15px] w-fit"
+                  className="text-yan-stone hover:text-yan-ivory transition-colors duration-300 text-[15px] w-fit"
                 >
                   {cat.name}
                 </Link>
@@ -84,10 +84,10 @@ export function Footer() {
 
           {/* Newsletter column */}
           <div className="md:col-span-4 md:col-start-9">
-            <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--color-yan-stone)] mb-6">
+            <h4 className="text-[11px] font-medium tracking-[0.2em] uppercase text-yan-stone mb-6">
               {t.newsletter.title}
             </h4>
-            <p className="text-[var(--color-yan-stone)] text-sm mb-6 leading-relaxed">
+            <p className="text-yan-stone text-sm mb-6 leading-relaxed">
               {t.newsletter.description}
             </p>
             <NewsletterForm variant="dark" />
@@ -96,17 +96,17 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[12px] text-[var(--color-yan-stone)] tracking-wide">
+          <p className="text-[12px] text-yan-stone tracking-wide">
             © {new Date().getFullYear()} YAN MAG. {t.footer.rights}
           </p>
-          <div className="flex gap-8 text-[12px] text-[var(--color-yan-stone)]">
-            <Link href="/privacidad" className="hover:text-[var(--color-yan-ivory)] transition-colors">
+          <div className="flex gap-8 text-[12px] text-yan-stone">
+            <Link href="/privacidad" className="hover:text-yan-ivory transition-colors">
               {t.footer.privacy}
             </Link>
-            <Link href="/terminos" className="hover:text-[var(--color-yan-ivory)] transition-colors">
+            <Link href="/terminos" className="hover:text-yan-ivory transition-colors">
               {t.footer.terms}
             </Link>
-            <Link href="/contacto" className="hover:text-[var(--color-yan-ivory)] transition-colors">
+            <Link href="/contacto" className="hover:text-yan-ivory transition-colors">
               {t.footer.contact}
             </Link>
           </div>

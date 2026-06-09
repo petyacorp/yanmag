@@ -39,6 +39,9 @@ export async function GET(request: Request) {
       provider: 'google',
       options: {
         redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextParam)}`,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     });
 

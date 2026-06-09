@@ -28,6 +28,7 @@ interface HomePageClientProps {
   siteSettings: {
     tagline_es?: string | null;
     tagline_en?: string | null;
+    quote_author?: string | null;
   } | null;
   tickerItems?: {
     items_es: string[];
@@ -110,6 +111,8 @@ export function HomePageClient({ articles, carouselArticles, siteSettings, ticke
     ? (isEs ? siteSettings.tagline_es : (siteSettings.tagline_en || siteSettings.tagline_es))
     : t.editorial.quote;
 
+  const quoteAuthor = siteSettings?.quote_author || t.editorial.author;
+
   return (
     <>
       {/* Hero Section */}
@@ -179,7 +182,7 @@ export function HomePageClient({ articles, carouselArticles, siteSettings, ticke
             {tagline}
           </h2>
           <p className="font-mono text-[12px] text-[var(--color-yan-stone)] uppercase tracking-[0.2em]">
-            {t.editorial.author}
+            — {quoteAuthor}
           </p>
         </div>
       </section>

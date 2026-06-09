@@ -20,7 +20,7 @@ export default function StatsCard({ title, value, icon: Icon, trend, trendUp }: 
         </div>
       </div>
       <div className="flex items-end justify-between">
-        <p className="text-4xl font-display font-semibold text-[var(--color-yan-charcoal)] tracking-tight">
+        <p className="text-3xl font-sans font-bold text-[var(--color-yan-charcoal)] tracking-tight">
           {value}
         </p>
         {trend && (

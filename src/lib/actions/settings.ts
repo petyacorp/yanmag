@@ -37,6 +37,7 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>) {
 
   if (error) throw error;
   revalidatePath('/');
+  revalidatePath('/admin');
   revalidatePath('/admin/configuracion');
   return data;
 }

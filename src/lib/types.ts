@@ -99,6 +99,7 @@ export interface SiteSettings {
   google_analytics_id: string | null;
   ticker_items_es: string[] | null;
   ticker_items_en: string[] | null;
+  quote_author: string | null;
   updated_at: string;
 }
 
@@ -109,6 +110,16 @@ export interface NewsletterSubscriber {
   is_active: boolean;
   subscribed_at: string;
   unsubscribed_at: string | null;
+}
+
+export type DashboardTaskStatus = 'pending' | 'in_progress' | 'completed';
+
+export interface DashboardTask {
+  id: string;
+  title: string;
+  status: DashboardTaskStatus;
+  created_at: string;
+  updated_at: string;
 }
 
 // Helper types for forms
