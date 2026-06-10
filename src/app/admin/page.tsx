@@ -1,9 +1,9 @@
 import StatsCard from "@/components/admin/StatsCard";
-import { Users, FileText, Eye, TrendingUp, Plus, Clipboard, Save } from "lucide-react";
+import { Users, FileText, FileEdit, Folder, Plus, Clipboard, Save } from "lucide-react";
 import Link from "next/link";
 import { getArticles, getArticlesForFeaturedManager } from "@/lib/actions/articles";
 import { getNewsletterSubscribers, getTickerItems, getSiteSettings } from "@/lib/actions/settings";
-import { getCategoryBySlug, createCategory, updateCategory } from "@/lib/actions/categories";
+import { getCategoryBySlug, createCategory, updateCategory, getCategories } from "@/lib/actions/categories";
 import { getDashboardTasks } from "@/lib/actions/tasks";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -51,6 +51,34 @@ export default async function AdminDashboard() {
   } catch (err: any) {
     isSchemaPending = true;
     dashboardTasks = [];
+  }
+
+  // Check notifications table schema
+  try {
+    await supabase.from('notifications').select('id').limit(1);
+  } catch (err: any) {
+    isSchemaPending = true;
+  }
+
+  // Fetch drafts/review articles count
+  let draftsCount = 0;
+  try {
+    const { count } = await supabase
+      .from('articles')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['draft', 'review']);
+    draftsCount = count || 0;
+  } catch (e) {
+    draftsCount = 0;
+  }
+
+  // Fetch categories count
+  let categoriesCount = 0;
+  try {
+    const categoriesList = await getCategories();
+    categoriesCount = categoriesList.length;
+  } catch (e) {
+    categoriesCount = 0;
   }
 
   // Fetch articles for featured manager (with error handling if column doesn't exist yet)
@@ -102,10 +130,10 @@ export default async function AdminDashboard() {
   }
 
   const stats = [
-    { title: "Artículos Totales", value: articlesCount, icon: FileText, trend: "+12% este mes", trendUp: true },
-    { title: "Visitas (30d)", value: "45.2K", icon: Eye, trend: "+5.4%", trendUp: true, href: "https://vercel.com/canispetyas-projects/yanmag/analytics", external: true },
-    { title: "Suscriptores", value: subscribersCount, icon: Users, trend: `+${subscribers.length}`, trendUp: true, href: "/admin/suscriptores" },
-    { title: "Tasa de Rebote", value: "42%", icon: TrendingUp, trend: "-2.1%", trendUp: true, href: "https://vercel.com/canispetyas-projects/yanmag/analytics", external: true },
+    { title: "Artículos Totales", value: articlesCount, icon: FileText, trend: "En base de datos", trendUp: true },
+    { title: "Borradores/Revisiones", value: draftsCount, icon: FileEdit, trend: "Pendientes", trendUp: true, href: "/admin/articulos" },
+    { title: "Suscriptores", value: subscribersCount, icon: Users, trend: `+${subscribers.length} total`, trendUp: true, href: "/admin/suscriptores" },
+    { title: "Categorías", value: categoriesCount, icon: Folder, trend: "Activas", trendUp: true, href: "/admin/categorias" },
   ];
 
   const lastUpdated = pizarraCategory?.updated_at 
@@ -125,15 +153,6 @@ export default async function AdminDashboard() {
           <h1 className="text-3xl font-display font-semibold text-[var(--color-yan-charcoal)] mb-2">Dashboard</h1>
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-[var(--color-yan-stone)] text-sm">Resumen de la actividad reciente y métricas clave.</p>
-            <span className="text-[var(--color-yan-border)] hidden sm:inline">|</span>
-            <a 
-              href="https://vercel.com/canispetyas-projects/yanmag/analytics" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-xs font-mono uppercase text-[var(--color-yan-red)] hover:underline flex items-center gap-1.5 transition-colors"
-            >
-              <Eye className="w-3.5 h-3.5" /> Ver Vercel Analytics
-            </a>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -162,6 +181,9 @@ export default async function AdminDashboard() {
               </a>
               <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_task_creator.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_task_creator.sql
+              </a>
+              <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_notifications.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_notifications.sql
               </a>
               <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_unaccent_search.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_unaccent_search.sql

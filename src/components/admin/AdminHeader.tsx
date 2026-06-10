@@ -1,9 +1,10 @@
 "use client";
 
-import { Bell, Search, Moon, Sun, LogOut } from "lucide-react";
+import { Search, Moon, Sun, LogOut } from "lucide-react";
 import { UserProfile } from "./UserProfile";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { createClient } from "@/lib/supabase/client";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 export default function AdminHeader() {
   const { theme, toggleTheme } = useTheme();
@@ -29,10 +30,7 @@ export default function AdminHeader() {
           {isDark ? <Sun className="w-5 h-5" strokeWidth={1.5} /> : <Moon className="w-5 h-5" strokeWidth={1.5} />}
         </button>
         
-        <button className="text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] transition-colors relative">
-          <Bell className="w-5 h-5" strokeWidth={1.5} />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-[var(--color-yan-red)] rounded-full"></span>
-        </button>
+        <NotificationsDropdown />
         
         <div className="flex items-center pl-6 border-l border-[var(--color-yan-border)] space-x-5">
           <UserProfile />
