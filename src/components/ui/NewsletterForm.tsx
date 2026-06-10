@@ -30,7 +30,7 @@ export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
     return (
       <div className="flex items-center gap-3 py-4">
         <CheckCircle className="w-5 h-5 text-[var(--color-yan-red)] flex-shrink-0" />
-        <p className={`text-sm ${isDark ? 'text-[var(--color-yan-ivory)]' : 'text-[var(--color-yan-charcoal)]'}`}>
+        <p className={`text-sm ${isDark ? 'text-[var(--footer-text)]' : 'text-[var(--color-yan-charcoal)]'}`}>
           {t.newsletter.success}
         </p>
       </div>
@@ -48,14 +48,14 @@ export function NewsletterForm({ variant = 'light' }: NewsletterFormProps) {
           required
           className={`flex-1 py-3 px-4 text-sm border focus:outline-none focus:border-yan-red transition-colors ${
             isDark
-              ? 'bg-transparent border-white/20 text-yan-ivory placeholder:text-white/40'
+              ? 'bg-transparent border-white/20 text-[var(--footer-text)] placeholder:text-white/40'
               : 'bg-yan-surface border-yan-border text-yan-charcoal placeholder:text-yan-stone'
           }`}
         />
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="px-5 py-3 bg-yan-red text-yan-ivory hover:bg-yan-red-dark transition-colors duration-300 disabled:opacity-50 flex items-center"
+          className="px-5 py-3 bg-yan-red text-[var(--footer-text)] hover:bg-yan-red-dark transition-colors duration-300 disabled:opacity-50 flex items-center"
           aria-label={t.newsletter.subscribe}
         >
           {status === 'loading' ? (

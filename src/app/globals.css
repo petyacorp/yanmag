@@ -53,6 +53,12 @@
     --foreground: var(--color-yan-charcoal);
     --spine-width: 10px;
     --background-image: url('/background-light.avif');
+
+    /* Footer Theme (Always Dark) */
+    --footer-bg: #4A433D;          /* dark charcoal */
+    --footer-text: #F3EFE7;        /* light ivory */
+    --footer-text-muted: #8A8078;  /* stone gray */
+    --footer-border: rgba(255, 255, 255, 0.1);
   }
 
   /* ========================================
@@ -80,6 +86,12 @@
     --color-yan-accent-dark: #E05A4F;
     --color-yan-muted: #9A928A;
     --color-yan-slate: #E8E4DC;
+
+    /* Footer Theme (Always Dark) */
+    --footer-bg: #12100E;          /* deep charcoal/black */
+    --footer-text: #E8E4DC;        /* light cream */
+    --footer-text-muted: #9A928A;  /* stone gray */
+    --footer-border: rgba(255, 255, 255, 0.1);
   }
 
   /* Admin dark theme (separate from public) */

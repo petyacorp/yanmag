@@ -58,7 +58,7 @@ export function Footer() {
   }, [locale, t.nav]);
 
   return (
-    <footer className="bg-yan-charcoal text-yan-ivory mt-24">
+    <footer className="bg-[var(--footer-bg)] text-[var(--footer-text)] mt-24">
       {/* Red accent line at top of footer */}
       <div className="h-[2px] bg-yan-red" />
 
@@ -89,7 +89,7 @@ export function Footer() {
                 <Link
                   key={cat.slug}
                   href={`/categoria/${cat.slug}`}
-                  className="text-yan-stone hover:text-yan-ivory transition-colors duration-300 text-[15px] w-fit"
+                  className="text-yan-stone hover:text-[var(--footer-text)] transition-colors duration-300 text-[15px] w-fit"
                 >
                   {cat.name}
                 </Link>
@@ -110,18 +110,18 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="mt-20 pt-8 border-t border-[var(--footer-border)] flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[12px] text-yan-stone tracking-wide">
             © {new Date().getFullYear()} YAN MAG. {t.footer.rights}
           </p>
           <div className="flex gap-8 text-[12px] text-yan-stone">
-            <Link href="/privacidad" className="hover:text-yan-ivory transition-colors">
+            <Link href="/privacidad" className="hover:text-[var(--footer-text)] transition-colors">
               {t.footer.privacy}
             </Link>
-            <Link href="/terminos" className="hover:text-yan-ivory transition-colors">
+            <Link href="/terminos" className="hover:text-[var(--footer-text)] transition-colors">
               {t.footer.terms}
             </Link>
-            <Link href="/contacto" className="hover:text-yan-ivory transition-colors">
+            <Link href="/contacto" className="hover:text-[var(--footer-text)] transition-colors">
               {t.footer.contact}
             </Link>
           </div>
