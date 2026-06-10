@@ -18,22 +18,18 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [categories, setCategories] = useState<{ id?: string; name: string; slug: string }[]>([]);
   const { locale, t } = useLocale();
-  const [logoPath, setLogoPath] = useState('/Logo1 no background.svg');
+  const [logoPath, setLogoPath] = useState('/Logo1 no background.png');
 
   useEffect(() => {
-    // Cuando agregues los otros 4 logos (ej: Logo2 no background.svg, etc.)
-    // puedes descomentar esta sección para activar la alternación aleatoria:
-    /*
     const logos = [
-      '/Logo1 no background.svg',
-      '/Logo2 no background.svg', // Asegúrate de que el nombre coincida exactamente
-      '/Logo3 no background.svg',
-      '/Logo4 no background.svg',
-      '/Logo5 no background.svg'
+      '/Logo1 no background.png',
+      '/Logo2 no background.png',
+      '/Logo3 no background.png',
+      '/Logo4 no background.png',
+      '/Logo5 no background.png'
     ];
     const randomIndex = Math.floor(Math.random() * logos.length);
     setLogoPath(logos[randomIndex]);
-    */
   }, []);
 
   useEffect(() => {

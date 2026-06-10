@@ -11,6 +11,19 @@ const CATEGORY_SLUGS = ['diseno', 'cultura', 'moda', 'arquitectura', 'entrevista
 export function Footer() {
   const [categories, setCategories] = useState<{ id?: string; name: string; slug: string }[]>([]);
   const { locale, t } = useLocale();
+  const [logoPath, setLogoPath] = useState('/Logo1 no background.png');
+
+  useEffect(() => {
+    const logos = [
+      '/Logo1 no background.png',
+      '/Logo2 no background.png',
+      '/Logo3 no background.png',
+      '/Logo4 no background.png',
+      '/Logo5 no background.png'
+    ];
+    const randomIndex = Math.floor(Math.random() * logos.length);
+    setLogoPath(logos[randomIndex]);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,7 +69,7 @@ export function Footer() {
           <div className="md:col-span-4 flex flex-col gap-6">
             <Link href="/" className="inline-block">
               <img 
-                src="/Logo1 no background.svg" 
+                src={logoPath} 
                 alt="YAN MAG Logo" 
                 className="h-10 w-auto object-contain invert" 
               />
