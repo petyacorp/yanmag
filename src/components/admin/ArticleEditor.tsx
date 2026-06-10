@@ -53,6 +53,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
   const [coverImageAlt, setCoverImageAlt] = useState(article?.cover_image_alt || "");
   const [metaTitle, setMetaTitle] = useState(article?.meta_title || "");
   const [metaDescription, setMetaDescription] = useState(article?.meta_description || "");
+  const [metaKeywords, setMetaKeywords] = useState(article?.meta_keywords || "");
 
   // Tag system states
   const [availableTags, setAvailableTags] = useState<any[]>(tags);
@@ -342,6 +343,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
         is_featured: isFeatured,
         meta_title: metaTitle || null,
         meta_description: metaDescription || null,
+        meta_keywords: metaKeywords || null,
         status: status,
         tag_ids: selectedTagIds
       };
@@ -931,6 +933,16 @@ export default function ArticleEditor({ isEditing = false, article, categories =
                   placeholder="Meta descripción para buscadores..."
                   className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-3 py-2 outline-none text-xs text-[var(--color-yan-charcoal)] resize-none h-20 transition-colors"
                 ></textarea>
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-[var(--color-yan-stone)] mb-2">Meta Palabras Clave (SEO Keywords)</label>
+                <input
+                  type="text"
+                  value={metaKeywords}
+                  onChange={(e) => setMetaKeywords(e.target.value)}
+                  placeholder="palabra1, palabra2, frase clave..."
+                  className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-3 py-2 outline-none text-xs text-[var(--color-yan-charcoal)]"
+                />
               </div>
             </div>
           </div>

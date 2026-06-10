@@ -1,9 +1,29 @@
+import { Metadata } from 'next';
 import { getArticleBySlug } from '@/lib/actions/articles';
 import { MOCK_ARTICLES } from '@/lib/mockData';
 import { ArticlePageClient } from './ArticlePageClient';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const dbArticle = await getArticleBySlug(resolvedParams.slug);
+  if (!dbArticle) {
+    const mockArticle = MOCK_ARTICLES.find(a => a.slug === resolvedParams.slug);
+    if (!mockArticle) return {};
+    return {
+      title: `${mockArticle.title} | YAN MAG`,
+      description: mockArticle.excerpt,
+    };
+  }
+
+  return {
+    title: dbArticle.meta_title || `${dbArticle.title_es} | YAN MAG`,
+    description: dbArticle.meta_description || dbArticle.excerpt_es || '',
+    keywords: dbArticle.meta_keywords || '',
+  };
+}
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
