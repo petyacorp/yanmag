@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
 import { AuthCallbackRedirect } from "@/components/providers/AuthCallbackRedirect";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -47,6 +48,7 @@ export default function RootLayout({
           <LocaleProvider>
             <AuthCallbackRedirect />
             {children}
+            <Analytics />
           </LocaleProvider>
         </ThemeProvider>
       </body>
