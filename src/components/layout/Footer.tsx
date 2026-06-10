@@ -55,9 +55,11 @@ export function Footer() {
           {/* Brand column */}
           <div className="md:col-span-4 flex flex-col gap-6">
             <Link href="/" className="inline-block">
-              <span className="font-display text-4xl font-semibold tracking-[0.02em] text-yan-ivory">
-                YAN MAG
-              </span>
+              <img 
+                src="/Logo1 no background.svg" 
+                alt="YAN MAG Logo" 
+                className="h-10 w-auto object-contain invert" 
+              />
             </Link>
             <p className="text-yan-stone text-[15px] leading-relaxed max-w-sm">
               {t.footer.tagline}

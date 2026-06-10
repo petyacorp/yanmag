@@ -187,9 +187,13 @@ export function Header() {
 
           <div className="flex flex-col h-full pl-[calc(var(--spine-width)+24px)] pr-6 py-8">
             <div className="flex justify-between items-center mb-16">
-              <span className="font-display text-2xl font-semibold tracking-[0.02em]">
-                YAN MAG
-              </span>
+              <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center">
+                <img 
+                  src={logoPath} 
+                  alt="YAN MAG Logo" 
+                  className="h-8 w-auto object-contain dark:invert" 
+                />
+              </Link>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] transition-colors"
