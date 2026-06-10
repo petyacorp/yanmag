@@ -10,7 +10,7 @@ import { useLocale } from '../providers/LocaleProvider';
 
 import { getCategories } from '@/lib/actions/categories';
 
-const CATEGORY_KEYS = ['diseno', 'cultura', 'moda', 'arquitectura', 'entrevistas'] as const;
+const CATEGORY_KEYS = ['diseno', 'cultura', 'moda', 'arquitectura', 'entrevistas', 'musica', 'videojuegos', 'cine-tv'] as const;
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);

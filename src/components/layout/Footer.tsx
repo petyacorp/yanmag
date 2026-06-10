@@ -6,7 +6,7 @@ import { NewsletterForm } from '../ui/NewsletterForm';
 import { useLocale } from '../providers/LocaleProvider';
 import { getCategories } from '@/lib/actions/categories';
 
-const CATEGORY_SLUGS = ['diseno', 'cultura', 'moda', 'arquitectura', 'entrevistas'] as const;
+const CATEGORY_SLUGS = ['diseno', 'cultura', 'moda', 'arquitectura', 'entrevistas', 'musica', 'videojuegos', 'cine-tv'] as const;
 
 export function Footer() {
   const [categories, setCategories] = useState<{ id?: string; name: string; slug: string }[]>([]);
