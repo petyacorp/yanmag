@@ -48,7 +48,8 @@ export default function ArticlesPage() {
     const matchesSearch = search === "" || 
       (art.title_es && art.title_es.toLowerCase().includes(search.toLowerCase())) ||
       (art.title_en && art.title_en.toLowerCase().includes(search.toLowerCase()));
-    const matchesCategory = selectedCategory === "" || art.category_id === selectedCategory;
+    const matchesCategory = selectedCategory === "" || 
+      (selectedCategory === "none" ? (art.category_id === null || art.category_id === undefined) : art.category_id === selectedCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -101,6 +102,7 @@ export default function ArticlesPage() {
             className="bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-4 py-2 text-sm outline-none text-[var(--color-yan-charcoal)] w-full sm:w-auto"
           >
             <option value="">Todas las categorías</option>
+            <option value="none">Sin categoría</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>{cat.name_es}</option>
             ))}
