@@ -103,9 +103,9 @@ export default async function AdminDashboard() {
 
   const stats = [
     { title: "Artículos Totales", value: articlesCount, icon: FileText, trend: "+12% este mes", trendUp: true },
-    { title: "Visitas (30d)", value: "45.2K", icon: Eye, trend: "+5.4%", trendUp: true },
-    { title: "Suscriptores", value: subscribersCount, icon: Users, trend: `+${subscribers.length}`, trendUp: true },
-    { title: "Tasa de Rebote", value: "42%", icon: TrendingUp, trend: "-2.1%", trendUp: true },
+    { title: "Visitas (30d)", value: "45.2K", icon: Eye, trend: "+5.4%", trendUp: true, href: "https://vercel.com/canispetyas-projects/yanmag/analytics", external: true },
+    { title: "Suscriptores", value: subscribersCount, icon: Users, trend: `+${subscribers.length}`, trendUp: true, href: "/admin/suscriptores" },
+    { title: "Tasa de Rebote", value: "42%", icon: TrendingUp, trend: "-2.1%", trendUp: true, href: "https://vercel.com/canispetyas-projects/yanmag/analytics", external: true },
   ];
 
   const lastUpdated = pizarraCategory?.updated_at 
