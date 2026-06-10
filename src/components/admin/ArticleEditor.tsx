@@ -26,14 +26,16 @@ import {
 import Link from "next/link";
 import MediaUploader from "./MediaUploader";
 import { createArticle, updateArticle } from "@/lib/actions/articles";
+import { createTag } from "@/lib/actions/tags";
 
 interface ArticleEditorProps {
   isEditing?: boolean;
   article?: any;
   categories?: any[];
+  tags?: any[];
 }
 
-export default function ArticleEditor({ isEditing = false, article, categories = [] }: ArticleEditorProps) {
+export default function ArticleEditor({ isEditing = false, article, categories = [], tags = [] }: ArticleEditorProps) {
   // Multilingual content states
   const [titleEs, setTitleEs] = useState(article?.title_es || "");
   const [titleEn, setTitleEn] = useState(article?.title_en || "");
@@ -51,6 +53,13 @@ export default function ArticleEditor({ isEditing = false, article, categories =
   const [coverImageAlt, setCoverImageAlt] = useState(article?.cover_image_alt || "");
   const [metaTitle, setMetaTitle] = useState(article?.meta_title || "");
   const [metaDescription, setMetaDescription] = useState(article?.meta_description || "");
+
+  // Tag system states
+  const [availableTags, setAvailableTags] = useState<any[]>(tags);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(article?.tags?.map((t: any) => t.id) || []);
+  const [tagSearch, setTagSearch] = useState("");
+  const [quickTagName, setQuickTagName] = useState("");
+  const [isCreatingQuickTag, setIsCreatingQuickTag] = useState(false);
 
   // UI state
   const [langTab, setLangTab] = useState<"es" | "en">("es");
@@ -334,7 +343,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
         meta_title: metaTitle || null,
         meta_description: metaDescription || null,
         status: status,
-        tag_ids: []
+        tag_ids: selectedTagIds
       };
 
       if (isEditing && article) {
@@ -356,6 +365,11 @@ export default function ArticleEditor({ isEditing = false, article, categories =
   const wordCount = currentContent ? currentContent.trim().split(/\s+/).filter(Boolean).length : 0;
   const charCount = currentContent ? currentContent.length : 0;
   const readingTime = Math.ceil(wordCount / 200);
+
+  const filteredTags = availableTags.filter((tag: any) => {
+    const name = langTab === "es" ? tag.name_es : (tag.name_en || tag.name_es);
+    return name.toLowerCase().includes(tagSearch.toLowerCase());
+  });
 
   return (
     <div className="max-w-5xl mx-auto pb-12">
@@ -740,6 +754,82 @@ export default function ArticleEditor({ isEditing = false, article, categories =
                     <option key={cat.id} value={cat.id}>{cat.name_es}</option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-[var(--color-yan-stone)] mb-2">Etiquetas</label>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Buscar etiquetas..."
+                    value={tagSearch}
+                    onChange={(e) => setTagSearch(e.target.value)}
+                    className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-3 py-1.5 outline-none text-xs text-[var(--color-yan-charcoal)] transition-colors"
+                  />
+                  <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)]">
+                    {filteredTags.length > 0 ? (
+                      filteredTags.map((tag: any) => {
+                        const isSelected = selectedTagIds.includes(tag.id);
+                        const tagName = langTab === "es" ? tag.name_es : (tag.name_en || tag.name_es);
+                        return (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                setSelectedTagIds(prev => prev.filter(id => id !== tag.id));
+                              } else {
+                                setSelectedTagIds(prev => [...prev, tag.id]);
+                              }
+                            }}
+                            className={`px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider transition-all duration-200 border cursor-pointer select-none rounded-none ${
+                              isSelected
+                                ? "bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)] border-[var(--color-yan-charcoal)] font-semibold"
+                                : "bg-[var(--color-yan-surface)] text-[var(--color-yan-stone)] border-[var(--color-yan-border)] hover:border-[var(--color-yan-red)] hover:text-[var(--color-yan-red)]"
+                            }`}
+                          >
+                            {tagName} {isSelected ? "✓" : "+"}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <span className="text-[10px] text-[var(--color-yan-stone)] italic p-1">Sin etiquetas.</span>
+                    )}
+                  </div>
+                  <div className="pt-2 border-t border-[var(--color-yan-border-light)] flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Nueva etiqueta..."
+                      value={quickTagName}
+                      onChange={(e) => setQuickTagName(e.target.value)}
+                      className="flex-1 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-2 py-1 outline-none text-xs text-[var(--color-yan-charcoal)]"
+                    />
+                    <button
+                      type="button"
+                      disabled={isCreatingQuickTag || !quickTagName.trim()}
+                      onClick={async () => {
+                        if (!quickTagName.trim()) return;
+                        try {
+                          setIsCreatingQuickTag(true);
+                          const newTag = await createTag(quickTagName);
+                          if (newTag) {
+                            setAvailableTags(prev => [...prev, newTag]);
+                            setSelectedTagIds(prev => [...prev, newTag.id]);
+                            setQuickTagName("");
+                          }
+                        } catch (e) {
+                          console.error("Error creating quick tag:", e);
+                          alert("Error al crear la etiqueta de forma rápida.");
+                        } finally {
+                          setIsCreatingQuickTag(false);
+                        }
+                      }}
+                      className="px-3 py-1 bg-[var(--color-yan-charcoal)] hover:bg-[var(--color-yan-red)] disabled:opacity-50 text-[var(--color-yan-ivory)] text-[10px] font-mono uppercase tracking-wider transition-colors flex items-center justify-center rounded-none"
+                    >
+                      {isCreatingQuickTag ? "..." : "Añadir"}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div>
