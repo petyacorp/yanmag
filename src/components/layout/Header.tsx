@@ -18,6 +18,23 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [categories, setCategories] = useState<{ id?: string; name: string; slug: string }[]>([]);
   const { locale, t } = useLocale();
+  const [logoPath, setLogoPath] = useState('/Logo1 no background.svg');
+
+  useEffect(() => {
+    // Cuando agregues los otros 4 logos (ej: Logo2 no background.svg, etc.)
+    // puedes descomentar esta sección para activar la alternación aleatoria:
+    /*
+    const logos = [
+      '/Logo1 no background.svg',
+      '/Logo2 no background.svg', // Asegúrate de que el nombre coincida exactamente
+      '/Logo3 no background.svg',
+      '/Logo4 no background.svg',
+      '/Logo5 no background.svg'
+    ];
+    const randomIndex = Math.floor(Math.random() * logos.length);
+    setLogoPath(logos[randomIndex]);
+    */
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,12 +117,12 @@ export function Header() {
           </div>
 
           {/* === CENTER COLUMN — Logo === */}
-          <Link href="/" className="flex justify-center">
-            <span className="font-display text-[24px] sm:text-[28px] lg:text-[32px] font-semibold tracking-[0.02em] whitespace-nowrap">
-              YAN
-              <span className="font-light mx-0.5 sm:mx-1"> </span>
-              MAG
-            </span>
+          <Link href="/" className="flex justify-center items-center">
+            <img 
+              src={logoPath} 
+              alt="YAN MAG Logo" 
+              className="h-10 sm:h-12 w-auto object-contain dark:invert" 
+            />
           </Link>
 
           {/* === RIGHT COLUMN === */}
