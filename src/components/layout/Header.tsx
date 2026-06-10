@@ -85,9 +85,9 @@ export function Header() {
           Use CSS Grid with 3 columns: [left] [center logo] [right]
           1fr auto 1fr ensures the logo is truly centered 
         */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center gap-4 lg:gap-6">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-[auto_1fr_auto] items-center gap-4 lg:gap-6">
 
-          {/* === LEFT COLUMN === */}
+          {/* === LEFT COLUMN: Desktop Logo / Mobile Hamburger === */}
           <div className="flex items-center">
             {/* Mobile: hamburger menu */}
             <button
@@ -98,9 +98,32 @@ export function Header() {
               <Menu className="w-5 h-5" strokeWidth={1.5} />
             </button>
 
-            {/* Desktop: left nav links */}
-            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
-              {categories.slice(0, 3).map((cat) => (
+            {/* Desktop: Logo on the left */}
+            <Link href="/" className="hidden lg:flex items-center">
+              <img 
+                src={logoPath} 
+                alt="YAN MAG Logo" 
+                className={`w-auto object-contain dark:invert transition-all duration-500 ${
+                  isScrolled ? 'h-10 xl:h-12' : 'h-20 xl:h-24'
+                }`}
+              />
+            </Link>
+          </div>
+
+          {/* === CENTER COLUMN: Desktop Categories / Mobile Logo === */}
+          <div className="flex items-center justify-center lg:justify-start">
+            {/* Mobile logo centered */}
+            <Link href="/" className="lg:hidden flex justify-center items-center">
+              <img 
+                src={logoPath} 
+                alt="YAN MAG Logo" 
+                className="h-10 sm:h-12 w-auto object-contain dark:invert" 
+              />
+            </Link>
+
+            {/* Desktop: Navigation categories to the right of the logo */}
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8 ml-6 xl:ml-10">
+              {categories.map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/categoria/${cat.slug}`}
@@ -112,30 +135,8 @@ export function Header() {
             </nav>
           </div>
 
-          {/* === CENTER COLUMN — Logo === */}
-          <Link href="/" className="flex justify-center items-center">
-            <img 
-              src={logoPath} 
-              alt="YAN MAG Logo" 
-              className="h-10 sm:h-12 w-auto object-contain dark:invert" 
-            />
-          </Link>
-
-          {/* === RIGHT COLUMN === */}
+          {/* === RIGHT COLUMN: Global Controls === */}
           <div className="flex items-center justify-end gap-3 sm:gap-4 lg:gap-5">
-            {/* Desktop: right nav links */}
-            <nav className="hidden lg:flex items-center gap-6 xl:gap-8 mr-2">
-              {categories.slice(3).map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/categoria/${cat.slug}`}
-                  className="yan-nav-link text-[11px] font-medium tracking-[0.18em] uppercase text-[var(--color-yan-charcoal)] hover:text-[var(--color-yan-red)] transition-colors duration-300 whitespace-nowrap"
-                >
-                  {cat.name}
-                </Link>
-              ))}
-            </nav>
-
             {/* Language switcher — hidden on very small screens, shown in mobile menu instead */}
             <div className="hidden sm:block">
               <LanguageSwitcher />
