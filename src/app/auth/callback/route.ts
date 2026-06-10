@@ -9,7 +9,12 @@ export async function GET(request: Request) {
 
   const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || url.host;
   const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
-  const origin = `${proto}://${host}`;
+  const headerOrigin = `${proto}://${host}`;
+
+  // Use NEXT_PUBLIC_SITE_URL as the authoritative origin in production
+  // to keep cookies on the correct domain (yanmag.cl, not yanmag.vercel.app)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const origin = siteUrl && siteUrl.startsWith('http') ? siteUrl.replace(/\/$/, '') : headerOrigin;
 
   const cookieStore = await cookies();
   const next = searchParams.get('next') || cookieStore.get('sb-oauth-next')?.value || '/admin';
@@ -73,3 +78,4 @@ export async function GET(request: Request) {
   // Return the user to an error page with instructions
   return NextResponse.redirect(`${origin}/auth/login?error=auth_failed`);
 }
+

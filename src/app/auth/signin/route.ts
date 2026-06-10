@@ -7,7 +7,13 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || url.host;
     const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
-    const origin = `${proto}://${host}`;
+    const headerOrigin = `${proto}://${host}`;
+
+    // Use NEXT_PUBLIC_SITE_URL as the authoritative origin in production
+    // to avoid domain mismatch between yanmag.cl and yanmag.vercel.app
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    const origin = siteUrl && siteUrl.startsWith('http') ? siteUrl.replace(/\/$/, '') : headerOrigin;
+
     const nextParam = url.searchParams.get('next') || '/admin';
 
     const cookieStore = await cookies();
@@ -70,9 +76,14 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/auth/login?error=signin_failed`);
   } catch (e) {
     console.error('Unexpected error in /auth/signin route', e);
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    if (siteUrl && siteUrl.startsWith('http')) {
+      return NextResponse.redirect(`${siteUrl.replace(/\/$/, '')}/auth/login?error=signin_failed`);
+    }
     const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || new URL(request.url).host;
     const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
     const origin = `${proto}://${host}`;
     return NextResponse.redirect(`${origin}/auth/login?error=signin_failed`);
   }
 }
+
