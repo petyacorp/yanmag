@@ -16,7 +16,7 @@ export async function getArticles(options?: {
   const supabase = await createClient();
   let query = supabase
     .from('articles')
-    .select('*, category:categories(*), author:profiles(*)', { count: 'exact' });
+    .select('*, category:categories(*), author:profiles(*), article_tags(tag:tags(*))', { count: 'exact' });
 
   if (options?.status === 'published') {
     query = query.order('published_at', { ascending: false });
@@ -48,7 +48,16 @@ export async function getArticles(options?: {
 
   const { data, error, count } = await query;
   if (error) throw error;
-  return { articles: data || [], count: count || 0 };
+
+  const mappedArticles = (data || []).map((art: any) => {
+    const { article_tags, ...rest } = art;
+    return {
+      ...rest,
+      tags: article_tags?.map((at: any) => at.tag).filter(Boolean) || []
+    };
+  });
+
+  return { articles: mappedArticles, count: count || 0 };
 }
 
 export async function getArticleBySlug(slug: string) {

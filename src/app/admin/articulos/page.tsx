@@ -58,6 +58,15 @@ export default function ArticlesPage() {
     slug: art.slug,
     title: art.title_es,
     category: art.category?.name_es || 'Sin categoría',
+    tags: art.tags && art.tags.length > 0 ? (
+      <div className="flex flex-wrap gap-1 max-w-[200px]">
+        {art.tags.map((tag: any) => (
+          <span key={tag.id} className="px-1.5 py-0.5 text-[9px] font-mono uppercase bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] text-[var(--color-yan-stone)]">
+            {tag.name_es}
+          </span>
+        ))}
+      </div>
+    ) : <span className="text-[var(--color-yan-stone)]/50 italic text-xs">-</span>,
     author: art.author?.full_name || art.author?.email?.split('@')[0] || 'Autor',
     date: new Date(art.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }),
     status: art.status
@@ -66,6 +75,7 @@ export default function ArticlesPage() {
   const columns = [
     { key: "title", label: "Título" },
     { key: "category", label: "Categoría" },
+    { key: "tags", label: "Etiquetas" },
     { key: "author", label: "Autor" },
     { key: "date", label: "Fecha" },
     { key: "status", label: "Estado" },
