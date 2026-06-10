@@ -66,15 +66,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-16 lg:gap-20">
 
           {/* Brand column */}
-          <div className="md:col-span-4 flex flex-col gap-6">
+          <div className="md:col-span-4 flex flex-col items-center text-center gap-6">
             <Link href="/" className="inline-block">
               <img 
                 src={logoPath} 
                 alt="YAN MAG Logo" 
-                className="h-10 w-auto object-contain invert" 
+                className="h-20 w-auto object-contain invert" 
               />
             </Link>
-            <p className="text-yan-stone text-[15px] leading-relaxed max-w-sm">
+            <p className="text-yan-stone text-[15px] leading-relaxed max-w-sm mx-auto">
               {t.footer.tagline}
             </p>
           </div>
