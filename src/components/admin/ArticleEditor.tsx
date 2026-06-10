@@ -55,6 +55,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
   const [metaDescription, setMetaDescription] = useState(article?.meta_description || "");
   const [metaKeywords, setMetaKeywords] = useState(article?.meta_keywords || "");
   const [rating, setRating] = useState<number | null>(article?.rating || null);
+  const [ratingComment, setRatingComment] = useState<string>(article?.rating_comment || "");
 
   // Tag system states
   const [availableTags, setAvailableTags] = useState<any[]>(tags);
@@ -346,6 +347,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
         meta_description: metaDescription || null,
         meta_keywords: metaKeywords || null,
         rating: rating,
+        rating_comment: rating ? ratingComment : null,
         status: status,
         tag_ids: selectedTagIds
       };
@@ -838,7 +840,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
 
               <div>
                 <label className="block text-xs font-mono uppercase tracking-widest text-[var(--color-yan-stone)] mb-2">Calificación de Estrellas (Opcional)</label>
-                <div className="flex items-center gap-2 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] p-2">
+                <div className="flex items-center gap-2 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] p-2 mb-2">
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((star) => {
                       const isActive = rating !== null && rating >= star;
@@ -867,13 +869,25 @@ export default function ArticleEditor({ isEditing = false, article, categories =
                   {rating !== null && (
                     <button
                       type="button"
-                      onClick={() => setRating(null)}
+                      onClick={() => {
+                        setRating(null);
+                        setRatingComment("");
+                      }}
                       className="text-[10px] font-mono uppercase text-red-600 hover:underline ml-2"
                     >
                       Limpiar
                     </button>
                   )}
                 </div>
+                {rating !== null && (
+                  <input
+                    type="text"
+                    value={ratingComment}
+                    onChange={(e) => setRatingComment(e.target.value)}
+                    placeholder="Comentario opcional sobre el rating..."
+                    className="w-full bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] rounded-none px-3 py-1.5 outline-none text-xs text-[var(--color-yan-charcoal)]"
+                  />
+                )}
               </div>
 
               <div>

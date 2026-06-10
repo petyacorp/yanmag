@@ -46,7 +46,7 @@ export async function GET(request: Request) {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user && user.email) {
-          const ADMIN_EMAILS = ['nicko.pereira@gmail.com', 'gianfrandres@gmail.com', 'petyacorp@gmail.com'];
+          const ADMIN_EMAILS = ['nicko.pereira@gmail.com', 'micko.pereira@gmail.com', 'gianfrandres@gmail.com', 'petyacorp@gmail.com'];
           if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
             const { error: roleError } = await supabase
               .from('profiles')

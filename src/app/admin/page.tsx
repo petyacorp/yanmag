@@ -17,7 +17,7 @@ export default async function AdminDashboard() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (user && user.email) {
-    const ADMIN_EMAILS = ['nicko.pereira@gmail.com', 'gianfrandres@gmail.com', 'petyacorp@gmail.com'];
+    const ADMIN_EMAILS = ['nicko.pereira@gmail.com', 'micko.pereira@gmail.com', 'gianfrandres@gmail.com', 'petyacorp@gmail.com'];
     if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
       if (profile && profile.role !== 'admin') {
@@ -123,7 +123,18 @@ export default async function AdminDashboard() {
       <div className="flex items-center justify-between mb-10 pb-6 border-b border-[var(--color-yan-border)]">
         <div>
           <h1 className="text-3xl font-display font-semibold text-[var(--color-yan-charcoal)] mb-2">Dashboard</h1>
-          <p className="text-[var(--color-yan-stone)] text-sm">Resumen de la actividad reciente y métricas clave.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-[var(--color-yan-stone)] text-sm">Resumen de la actividad reciente y métricas clave.</p>
+            <span className="text-[var(--color-yan-border)] hidden sm:inline">|</span>
+            <a 
+              href="https://vercel.com/canispetyas-projects/yanmag/analytics" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-xs font-mono uppercase text-[var(--color-yan-red)] hover:underline flex items-center gap-1.5 transition-colors"
+            >
+              <Eye className="w-3.5 h-3.5" /> Ver Vercel Analytics
+            </a>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <Link 

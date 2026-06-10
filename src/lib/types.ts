@@ -60,6 +60,7 @@ export interface Article {
   meta_description: string | null;
   meta_keywords: string | null;
   rating: number | null;
+  rating_comment: string | null;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -143,6 +144,7 @@ export interface ArticleFormData {
   meta_description: string;
   meta_keywords: string;
   rating: number | null;
+  rating_comment: string | null;
   status: ArticleStatus;
 }
 

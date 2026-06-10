@@ -83,7 +83,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           avatar_url: dbArticle.author?.avatar_url
         },
         tags: dbArticle.tags || [],
-        rating: dbArticle.rating || null
+        rating: dbArticle.rating || null,
+        rating_comment: dbArticle.rating_comment || null
       } as any} 
     />
   );
