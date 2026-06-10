@@ -77,18 +77,7 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
         </div>
         <div className="relative z-10 w-full max-w-[1200px] mx-auto px-6 lg:px-8 pb-16 md:pb-24">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-4 mb-6">
-              {slide.category && slide.category.slug && (
-                <CategoryBadge
-                  name={t.nav[slide.category.slug as keyof typeof t.nav] || slide.category.name}
-                  slug={slide.category.slug}
-                  color="#FDFCF9"
-                />
-              )}
-              <span className="text-[11px] font-medium text-white/70 tracking-[0.15em] uppercase">
-                {slide.date}
-              </span>
-            </div>
+
             <Link href={`/articulo/${slide.slug}`} className="block group">
               <h1 className="font-display text-4xl md:text-6xl lg:text-[72px] font-semibold text-[var(--color-yan-ivory)] leading-[1.1] mb-6 tracking-tight group-hover:text-[var(--color-yan-red-light)] transition-colors duration-500">
                 {slide.title}
@@ -145,18 +134,7 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
 
           <div className="relative z-10 w-full max-w-[1200px] mx-auto px-6 lg:px-8 pb-20 md:pb-28">
             <div className="max-w-3xl">
-              <div className="flex items-center gap-4 mb-6">
-                {slide.category && slide.category.slug && (
-                  <CategoryBadge
-                    name={t.nav[slide.category.slug as keyof typeof t.nav] || slide.category.name}
-                    slug={slide.category.slug}
-                    color="#FDFCF9"
-                  />
-                )}
-                <span className="text-[11px] font-medium text-white/70 tracking-[0.15em] uppercase">
-                  {slide.date}
-                </span>
-              </div>
+
 
               <Link href={`/articulo/${slide.slug}`} className="block group">
                 <h2
