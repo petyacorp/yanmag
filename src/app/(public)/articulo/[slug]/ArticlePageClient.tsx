@@ -26,6 +26,7 @@ interface ArticlePageClientProps {
       avatar_url?: string;
     };
     tags: Array<{ name_es: string; name_en?: string }>;
+    rating?: number | null;
   };
 }
 
@@ -154,6 +155,31 @@ export function ArticlePageClient({ article }: ArticlePageClientProps) {
           <h1 className="font-display text-4xl md:text-6xl lg:text-[72px] font-semibold leading-[1.05] tracking-tight text-[var(--color-yan-charcoal)]">
             {title}
           </h1>
+
+          {article.rating && (
+            <div className="flex items-center gap-1 mt-4 mb-2" aria-label={`Clasificación: ${article.rating} de 5 estrellas`}>
+              {Array.from({ length: 5 }).map((_, i) => {
+                const isSolid = i < (article.rating || 0);
+                return (
+                  <svg
+                    key={i}
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill={isSolid ? "var(--color-yan-red)" : "none"}
+                    stroke="var(--color-yan-red)"
+                    strokeWidth="1.5"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                );
+              })}
+              <span className="ml-2.5 font-mono text-[10px] uppercase tracking-widest text-[var(--color-yan-stone)]">
+                {article.rating} / 5
+              </span>
+            </div>
+          )}
           
           <p className="text-xl md:text-2xl text-[var(--color-yan-charcoal)]/80 leading-relaxed max-w-3xl font-light mt-4">
             {excerpt}

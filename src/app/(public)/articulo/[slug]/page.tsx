@@ -82,7 +82,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           full_name: dbArticle.author?.full_name || 'Redacción YAN MAG',
           avatar_url: dbArticle.author?.avatar_url
         },
-        tags: dbArticle.tags || []
+        tags: dbArticle.tags || [],
+        rating: dbArticle.rating || null
       } as any} 
     />
   );

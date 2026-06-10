@@ -54,6 +54,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
   const [metaTitle, setMetaTitle] = useState(article?.meta_title || "");
   const [metaDescription, setMetaDescription] = useState(article?.meta_description || "");
   const [metaKeywords, setMetaKeywords] = useState(article?.meta_keywords || "");
+  const [rating, setRating] = useState<number | null>(article?.rating || null);
 
   // Tag system states
   const [availableTags, setAvailableTags] = useState<any[]>(tags);
@@ -344,6 +345,7 @@ export default function ArticleEditor({ isEditing = false, article, categories =
         meta_title: metaTitle || null,
         meta_description: metaDescription || null,
         meta_keywords: metaKeywords || null,
+        rating: rating,
         status: status,
         tag_ids: selectedTagIds
       };
@@ -831,6 +833,46 @@ export default function ArticleEditor({ isEditing = false, article, categories =
                       {isCreatingQuickTag ? "..." : "Añadir"}
                     </button>
                   </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-widest text-[var(--color-yan-stone)] mb-2">Calificación de Estrellas (Opcional)</label>
+                <div className="flex items-center gap-2 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] p-2">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const isActive = rating !== null && rating >= star;
+                      return (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(rating === star ? null : star)}
+                          className="p-1 hover:scale-110 transition-transform cursor-pointer"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill={isActive ? "var(--color-yan-red)" : "none"}
+                            stroke={isActive ? "var(--color-yan-red)" : "var(--color-yan-stone)"}
+                            strokeWidth="1.5"
+                          >
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          </svg>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {rating !== null && (
+                    <button
+                      type="button"
+                      onClick={() => setRating(null)}
+                      className="text-[10px] font-mono uppercase text-red-600 hover:underline ml-2"
+                    >
+                      Limpiar
+                    </button>
+                  )}
                 </div>
               </div>
 
