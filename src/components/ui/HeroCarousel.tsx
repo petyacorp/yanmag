@@ -79,7 +79,7 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
           <div className="max-w-3xl">
 
             <Link href={`/articulo/${slide.slug}`} className="block group">
-              <h1 className="font-display text-4xl md:text-6xl lg:text-[72px] font-semibold text-[var(--color-yan-ivory)] leading-[1.1] mb-6 tracking-tight group-hover:text-[var(--color-yan-red-light)] transition-colors duration-500">
+              <h1 className="font-display text-4xl md:text-6xl lg:text-[72px] font-semibold text-[var(--color-yan-ivory)] leading-[1.1] mb-6 tracking-tight group-hover:text-[var(--color-yan-red-light)] transition-colors duration-500 animate-carousel-title-color">
                 {slide.title}
               </h1>
             </Link>
@@ -138,7 +138,7 @@ export function HeroCarousel({ slides, autoPlayInterval = 6000 }: HeroCarouselPr
 
               <Link href={`/articulo/${slide.slug}`} className="block group">
                 <h2
-                  className={`font-display text-4xl md:text-6xl lg:text-[72px] font-semibold text-[var(--color-yan-ivory)] leading-[1.1] mb-6 tracking-tight group-hover:text-[var(--color-yan-red-light)] transition-colors duration-500 ${
+                  className={`font-display text-4xl md:text-6xl lg:text-[72px] font-semibold text-[var(--color-yan-ivory)] leading-[1.1] mb-6 tracking-tight group-hover:text-[var(--color-yan-red-light)] transition-colors duration-500 animate-carousel-title-color ${
                     index === current ? 'animate-carousel-text-in' : ''
                   }`}
                 >

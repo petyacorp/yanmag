@@ -411,4 +411,16 @@
   .animate-re-backdrop-in {
     animation: re-backdrop-in 0.3s ease-out forwards;
   }
+
+  @keyframes carousel-title-color {
+    0%, 100% {
+      color: var(--color-yan-ivory);
+    }
+    50% {
+      color: var(--color-yan-red-light);
+    }
+  }
+  .animate-carousel-title-color {
+    animation: carousel-title-color 6s ease-in-out infinite;
+  }
 }
