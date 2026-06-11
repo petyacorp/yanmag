@@ -116,9 +116,6 @@ export async function updateDashboardTaskStatus(
       if (profiles && profiles.length > 0) {
         const titleLower = task.title.toLowerCase();
         for (const profile of profiles) {
-          // Skip the user who completed the task
-          if (user && profile.id === user.id) continue;
-
           if (profile.id === task.creator_id) {
             // Task creator
             await createNotification(
