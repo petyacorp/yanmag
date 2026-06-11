@@ -105,41 +105,57 @@ export async function updateDashboardTaskStatus(
     try {
       const completerName = user?.user_metadata?.full_name || user?.email || 'Sistema';
       const { createNotification } = await import('./notifications');
-      const { getAdminUsers } = await import('./users');
 
-      // 1. Notify creator if they didn't complete it themselves
-      if (task.creator_id && (!user || task.creator_id !== user.id)) {
-        await createNotification(
-          task.creator_id,
-          `${completerName} ha completado tu tarea: "${task.title}"`,
-          'task_completed',
-          id
-        );
-      }
+      // Fetch all profiles to notify all users
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, email, full_name');
 
-      // 2. Notify other mentioned users in the task
-      const adminUsers = await getAdminUsers();
-      const titleLower = task.title.toLowerCase();
-      for (const admin of adminUsers) {
-        // Skip creator (already handled) and completer
-        if (admin.id === task.creator_id || (user && admin.id === user.id)) continue;
+      if (profilesError) throw profilesError;
 
-        const emailPrefix = admin.email.split('@')[0].toLowerCase();
-        const fullName = admin.full_name?.toLowerCase().trim();
-        const mentionEmail = `@${emailPrefix}`;
-        const mentionName = fullName ? `@${fullName}` : null;
+      if (profiles && profiles.length > 0) {
+        const titleLower = task.title.toLowerCase();
+        for (const profile of profiles) {
+          // Skip the user who completed the task
+          if (user && profile.id === user.id) continue;
 
-        if (titleLower.includes(mentionEmail) || (mentionName && titleLower.includes(mentionName))) {
-          await createNotification(
-            admin.id,
-            `La tarea en la que fuiste mencionado "${task.title}" fue marcada como HECHA por ${completerName}.`,
-            'task_completed',
-            id
-          );
+          if (profile.id === task.creator_id) {
+            // Task creator
+            await createNotification(
+              profile.id,
+              `${completerName} ha completado tu tarea: "${task.title}"`,
+              'task_completed',
+              id
+            );
+          } else {
+            // Check if this profile was mentioned in the task
+            const emailPrefix = profile.email.split('@')[0].toLowerCase();
+            const fullName = profile.full_name?.toLowerCase().trim();
+            const mentionEmail = `@${emailPrefix}`;
+            const mentionName = fullName ? `@${fullName}` : null;
+            const isMentioned = titleLower.includes(mentionEmail) || (mentionName && titleLower.includes(mentionName));
+
+            if (isMentioned) {
+              await createNotification(
+                profile.id,
+                `La tarea en la que fuiste mencionado "${task.title}" fue marcada como HECHA por ${completerName}.`,
+                'task_completed',
+                id
+              );
+            } else {
+              // Any other user
+              await createNotification(
+                profile.id,
+                `${completerName} ha completado la tarea: "${task.title}"`,
+                'task_completed',
+                id
+              );
+            }
+          }
         }
       }
     } catch (notifError) {
-      console.error('Failed to send task completion notifications:', notifError);
+      console.error('Failed to send task completion notifications to all users:', notifError);
     }
   }
 
