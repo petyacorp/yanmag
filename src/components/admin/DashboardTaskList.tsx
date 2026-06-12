@@ -109,6 +109,16 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
         [taskId]: [...(prev[taskId] || []), createdComment]
       }));
       setNewComment("");
+      setTasks(prev => prev.map(t => {
+        if (t.id === taskId) {
+          const currentCount = t.task_comments?.[0]?.count || 0;
+          return {
+            ...t,
+            task_comments: [{ count: currentCount + 1 }]
+          };
+        }
+        return t;
+      }));
     } catch (err) {
       console.error("Failed to create task comment:", err);
     } finally {
@@ -122,6 +132,16 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
       setCommentsByTaskId(prev => ({
         ...prev,
         [taskId]: (prev[taskId] || []).filter(c => c.id !== commentId)
+      }));
+      setTasks(prev => prev.map(t => {
+        if (t.id === taskId) {
+          const currentCount = t.task_comments?.[0]?.count || 0;
+          return {
+            ...t,
+            task_comments: [{ count: Math.max(0, currentCount - 1) }]
+          };
+        }
+        return t;
       }));
     } catch (err) {
       console.error("Failed to delete task comment:", err);
@@ -218,7 +238,7 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
       try {
         const updatedTask = await updateDashboardTaskStatus(id, status);
         setTasks((prev) =>
-          prev.map((t) => (t.id === id ? updatedTask : t))
+          prev.map((t) => (t.id === id ? { ...updatedTask, task_comments: t.task_comments } : t))
         );
       } catch (error) {
         console.error("Error updating task status:", error);
@@ -475,12 +495,28 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
                     <button
                       type="button"
                       onClick={() => toggleComments(task.id)}
-                      className={`p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] border border-transparent hover:border-[var(--color-yan-border)] transition-all bg-[var(--color-yan-surface-elevated)] ${
+                      className={`p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] border border-transparent hover:border-[var(--color-yan-border)] transition-all bg-[var(--color-yan-surface-elevated)] relative ${
                         isCommentsExpanded ? "border-[var(--color-yan-border)] text-[var(--color-yan-charcoal)]" : ""
                       }`}
                       title="Comentarios de la tarea"
                     >
-                      <MessageSquare className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      {(() => {
+                        const commentsCount = task.task_comments?.[0]?.count || 0;
+                        const hasComments = commentsCount > 0;
+                        return (
+                          <>
+                            <MessageSquare 
+                              className={`w-3.5 h-3.5 ${hasComments ? "text-[var(--color-yan-red)] fill-[var(--color-yan-red)]/10" : ""}`} 
+                              strokeWidth={1.5} 
+                            />
+                            {hasComments && (
+                              <span className="absolute -top-1 -right-1 bg-[var(--color-yan-red)] text-[var(--color-yan-ivory)] text-[8px] font-mono w-3.5 h-3.5 flex items-center justify-center font-bold border border-[var(--color-yan-surface)]">
+                                {commentsCount}
+                              </span>
+                            )}
+                          </>
+                        );
+                      })()}
                     </button>
 
                     <button

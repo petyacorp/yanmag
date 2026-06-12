@@ -124,6 +124,7 @@ export interface DashboardTask {
   created_at: string;
   updated_at: string;
   created_by?: string;
+  task_comments?: { count: number }[];
 }
 
 export interface TaskComment {

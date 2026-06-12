@@ -8,7 +8,10 @@ export async function getDashboardTasks(): Promise<DashboardTask[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('dashboard_tasks')
-    .select('*')
+    .select(`
+      *,
+      task_comments(count)
+    `)
     .order('created_at', { ascending: true });
 
   if (error) {
