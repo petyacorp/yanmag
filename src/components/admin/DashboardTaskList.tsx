@@ -312,8 +312,8 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
           onClick={() => setActiveTab('pending')}
           className={`flex-1 py-1.5 transition-all uppercase tracking-wider ${
             activeTab === 'pending'
-              ? 'bg-[var(--color-yan-stone)] text-[var(--color-yan-ivory)]'
-              : 'text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]'
+              ? 'bg-[var(--color-yan-red)] text-white'
+              : 'text-[var(--color-yan-red)] hover:bg-[var(--color-yan-border-light)]'
           }`}
         >
           Pendientes ({tasks.filter(t => t.status === 'pending').length})
@@ -324,7 +324,7 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
           className={`flex-1 py-1.5 transition-all uppercase tracking-wider ${
             activeTab === 'in_progress'
               ? 'bg-amber-500 text-white'
-              : 'text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]'
+              : 'text-amber-500 hover:bg-[var(--color-yan-border-light)]'
           }`}
         >
           En trabajo ({tasks.filter(t => t.status === 'in_progress').length})
@@ -335,7 +335,7 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
           className={`flex-1 py-1.5 transition-all uppercase tracking-wider ${
             activeTab === 'completed'
               ? 'bg-emerald-600 text-white'
-              : 'text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]'
+              : 'text-emerald-600 hover:bg-[var(--color-yan-border-light)]'
           }`}
         >
           Hechas ({tasks.filter(t => t.status === 'completed').length})
@@ -459,8 +459,8 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
                         disabled={isLoading}
                         className={`px-2 py-1 transition-colors uppercase ${
                           task.status === "pending"
-                            ? "bg-[var(--color-yan-stone)] text-[var(--color-yan-ivory)]"
-                            : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
+                            ? "bg-[var(--color-yan-red)] text-white"
+                            : "text-[var(--color-yan-red)] hover:bg-[var(--color-yan-border-light)]"
                         }`}
                       >
                         Pendiente
@@ -472,7 +472,7 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
                         className={`px-2 py-1 transition-colors uppercase ${
                           task.status === "in_progress"
                             ? "bg-amber-500 text-white"
-                            : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
+                            : "text-amber-500 hover:bg-[var(--color-yan-border-light)]"
                         }`}
                       >
                         En trabajo
@@ -484,7 +484,7 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
                         className={`px-2 py-1 transition-colors uppercase ${
                           task.status === "completed"
                             ? "bg-emerald-600 text-white"
-                            : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
+                            : "text-emerald-600 hover:bg-[var(--color-yan-border-light)]"
                         }`}
                       >
                         Hecho
