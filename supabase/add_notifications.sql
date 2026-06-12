@@ -29,8 +29,41 @@ ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
 -- 5. Policies for notifications
 DROP POLICY IF EXISTS "Users can manage own notifications" ON public.notifications;
-CREATE POLICY "Users can manage own notifications"
-  ON public.notifications FOR ALL
+DROP POLICY IF EXISTS "Authenticated users can insert notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Users can view own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Users can update own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Users can delete own notifications" ON public.notifications;
+
+-- 5.1 Anyone who is authenticated can insert a notification
+CREATE POLICY "Authenticated users can insert notifications"
+  ON public.notifications FOR INSERT
+  WITH CHECK (
+    auth.role() = 'authenticated'
+  );
+
+-- 5.2 Users can only select their own notifications
+CREATE POLICY "Users can view own notifications"
+  ON public.notifications FOR SELECT
+  USING (
+    auth.role() = 'authenticated'
+    AND auth.uid() = user_id
+  );
+
+-- 5.3 Users can only update their own notifications (e.g., mark as read)
+CREATE POLICY "Users can update own notifications"
+  ON public.notifications FOR UPDATE
+  USING (
+    auth.role() = 'authenticated'
+    AND auth.uid() = user_id
+  )
+  WITH CHECK (
+    auth.role() = 'authenticated'
+    AND auth.uid() = user_id
+  );
+
+-- 5.4 Users can only delete their own notifications
+CREATE POLICY "Users can delete own notifications"
+  ON public.notifications FOR DELETE
   USING (
     auth.role() = 'authenticated'
     AND auth.uid() = user_id
