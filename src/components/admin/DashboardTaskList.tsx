@@ -27,6 +27,7 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
   const [isAdding, setIsAdding] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all');
  
   // Autocomplete Mentions State
   const [adminUsers, setAdminUsers] = useState<Profile[]>([]);
@@ -203,6 +204,7 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
       const createdTask = await createDashboardTask(newTaskTitle);
       setTasks((prev) => [...prev, createdTask]);
       setNewTaskTitle("");
+      setActiveTab('all');
     } catch (error) {
       console.error("Error creating task:", error);
     } finally {
@@ -245,6 +247,11 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
   const completedTasks = tasks.filter((t) => t.status === "completed").length;
   const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+  const filteredTasks = tasks.filter((task) => {
+    if (activeTab === 'all') return true;
+    return task.status === activeTab;
+  });
+
   return (
     <div className="bg-[var(--color-yan-surface)] border border-[var(--color-yan-border)] p-6 mb-8 shadow-sm">
       <div className="flex items-center justify-between pb-3 border-b border-[var(--color-yan-border)] mb-5">
@@ -266,6 +273,54 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
           />
         </div>
       )}
+
+      {/* Tab Filter Selector */}
+      <div className="flex bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] p-0.5 text-[11px] font-mono font-semibold mb-6">
+        <button
+          type="button"
+          onClick={() => setActiveTab('all')}
+          className={`flex-1 py-1.5 transition-all uppercase tracking-wider ${
+            activeTab === 'all'
+              ? 'bg-[var(--color-yan-charcoal)] text-[var(--color-yan-ivory)]'
+              : 'text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]'
+          }`}
+        >
+          Todas ({tasks.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('pending')}
+          className={`flex-1 py-1.5 transition-all uppercase tracking-wider ${
+            activeTab === 'pending'
+              ? 'bg-[var(--color-yan-stone)] text-[var(--color-yan-ivory)]'
+              : 'text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]'
+          }`}
+        >
+          Pendientes ({tasks.filter(t => t.status === 'pending').length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('in_progress')}
+          className={`flex-1 py-1.5 transition-all uppercase tracking-wider ${
+            activeTab === 'in_progress'
+              ? 'bg-amber-500 text-white'
+              : 'text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]'
+          }`}
+        >
+          En trabajo ({tasks.filter(t => t.status === 'in_progress').length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('completed')}
+          className={`flex-1 py-1.5 transition-all uppercase tracking-wider ${
+            activeTab === 'completed'
+              ? 'bg-emerald-600 text-white'
+              : 'text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]'
+          }`}
+        >
+          Hechas ({tasks.filter(t => t.status === 'completed').length})
+        </button>
+      </div>
 
       {/* Add New Task Form */}
       <form onSubmit={handleAddTask} className="flex gap-3 mb-6 relative">
@@ -334,8 +389,8 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
 
       {/* Task List */}
       <div className="divide-y divide-[var(--color-yan-border-light)] max-h-80 overflow-y-auto pr-1">
-        {tasks.length > 0 ? (
-          tasks.map((task) => {
+        {filteredTasks.length > 0 ? (
+          filteredTasks.map((task) => {
             const isLoading = loadingTaskId === task.id;
             const isCommentsExpanded = activeCommentsTaskId === task.id;
             return (
@@ -532,7 +587,10 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
           })
         ) : (
           <div className="py-8 text-center text-[var(--color-yan-stone)] font-mono text-xs">
-            No hay tareas pendientes en la pizarra. ¡Añade una para comenzar!
+            {activeTab === 'all' && "No hay tareas en la pizarra. ¡Añade una para comenzar!"}
+            {activeTab === 'pending' && "No hay tareas pendientes."}
+            {activeTab === 'in_progress' && "No hay tareas en trabajo."}
+            {activeTab === 'completed' && "No hay tareas hechas."}
           </div>
         )}
       </div>
