@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import type { DashboardTask, DashboardTaskStatus } from '@/lib/types';
+import type { DashboardTask, DashboardTaskStatus, TaskComment } from '@/lib/types';
 
 export async function getDashboardTasks(): Promise<DashboardTask[]> {
   const supabase = await createClient();
@@ -168,6 +168,77 @@ export async function deleteDashboardTask(id: string): Promise<void> {
     .eq('id', id);
 
   if (error) throw error;
+  revalidatePath('/admin');
+}
+
+export async function getTaskComments(taskId: string): Promise<TaskComment[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('task_comments')
+    .select('*, profile:profiles(*)')
+    .eq('task_id', taskId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching task comments:', error.message);
+    throw error;
+  }
+  return data || [];
+}
+
+export async function createTaskComment(taskId: string, content: string): Promise<TaskComment> {
+  if (!content || content.trim() === '') {
+    throw new Error('El comentario no puede estar vacío');
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('Not authenticated');
+  }
+
+  const creatorName = user.user_metadata?.full_name || user.email || 'Sistema';
+
+  const { data, error } = await supabase
+    .from('task_comments')
+    .insert({
+      task_id: taskId,
+      user_id: user.id,
+      content: content.trim(),
+      created_by: creatorName
+    })
+    .select('*, profile:profiles(*)')
+    .single();
+
+  if (error) {
+    console.error('Error creating task comment:', error.message);
+    throw error;
+  }
+
+  revalidatePath('/admin');
+  return data;
+}
+
+export async function deleteTaskComment(commentId: string): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('Not authenticated');
+  }
+
+  const { error } = await supabase
+    .from('task_comments')
+    .delete()
+    .eq('id', commentId)
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error deleting task comment:', error.message);
+    throw error;
+  }
+
   revalidatePath('/admin');
 }
 

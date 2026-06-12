@@ -60,6 +60,13 @@ export default async function AdminDashboard() {
     isSchemaPending = true;
   }
 
+  // Check task_comments table schema
+  try {
+    await supabase.from('task_comments').select('id').limit(1);
+  } catch (err: any) {
+    isSchemaPending = true;
+  }
+
   // Fetch drafts/review articles count
   let draftsCount = 0;
   try {
@@ -184,6 +191,9 @@ export default async function AdminDashboard() {
               </a>
               <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_notifications.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_notifications.sql
+              </a>
+              <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_task_comments.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_task_comments.sql
               </a>
               <a href="file:///c:/Users/dell/OneDrive/Desktop/APPS/_YANMAG_/supabase/add_unaccent_search.sql" className="underline hover:text-amber-950 dark:hover:text-amber-100 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> add_unaccent_search.sql

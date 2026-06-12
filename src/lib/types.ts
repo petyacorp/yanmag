@@ -126,6 +126,16 @@ export interface DashboardTask {
   created_by?: string;
 }
 
+export interface TaskComment {
+  id: string;
+  task_id: string;
+  user_id: string;
+  content: string;
+  created_by: string;
+  created_at: string;
+  profile?: Profile;
+}
+
 // Helper types for forms
 export interface ArticleFormData {
   title_es: string;

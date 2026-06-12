@@ -4,15 +4,18 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import { 
   ClipboardList, Plus, Trash2, Loader2, 
   Circle, HelpCircle, PlayCircle, CheckCircle2,
-  User
+  User, MessageSquare, Send, CornerDownRight
 } from "lucide-react";
 import { 
   createDashboardTask, 
   updateDashboardTaskStatus, 
-  deleteDashboardTask 
+  deleteDashboardTask,
+  getTaskComments,
+  createTaskComment,
+  deleteTaskComment
 } from "@/lib/actions/tasks";
 import { getAdminUsers } from "@/lib/actions/users";
-import type { DashboardTask, DashboardTaskStatus, Profile } from "@/lib/types";
+import type { DashboardTask, DashboardTaskStatus, Profile, TaskComment } from "@/lib/types";
 
 interface DashboardTaskListProps {
   initialTasks: DashboardTask[];
@@ -24,7 +27,7 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
   const [isAdding, setIsAdding] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null);
-
+ 
   // Autocomplete Mentions State
   const [adminUsers, setAdminUsers] = useState<Profile[]>([]);
   const [suggestions, setSuggestions] = useState<Profile[]>([]);
@@ -33,17 +36,96 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
   const [mentionIndex, setMentionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Comments System States
+  const [currentUser, setCurrentUser] = useState<Profile | null>(null);
+  const [activeCommentsTaskId, setActiveCommentsTaskId] = useState<string | null>(null);
+  const [commentsByTaskId, setCommentsByTaskId] = useState<Record<string, TaskComment[]>>({});
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [isAddingComment, setIsAddingComment] = useState(false);
+
   useEffect(() => {
-    const loadUsers = async () => {
+    const loadUsersAndCurrentUser = async () => {
       try {
         const users = await getAdminUsers();
         setAdminUsers(users);
+
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const profile = users.find(u => u.id === user.id);
+          if (profile) {
+            setCurrentUser(profile);
+          } else {
+            setCurrentUser({
+              id: user.id,
+              email: user.email || '',
+              full_name: user.user_metadata?.full_name || '',
+              avatar_url: user.user_metadata?.avatar_url || '',
+              role: 'editor',
+              created_at: '',
+              updated_at: ''
+            });
+          }
+        }
       } catch (err) {
-        console.error("Failed to load admin users for mentions:", err);
+        console.error("Failed to load admin users or current user:", err);
       }
     };
-    loadUsers();
+    loadUsersAndCurrentUser();
   }, []);
+
+  const toggleComments = async (taskId: string) => {
+    if (activeCommentsTaskId === taskId) {
+      setActiveCommentsTaskId(null);
+      return;
+    }
+
+    setActiveCommentsTaskId(taskId);
+    setNewComment("");
+
+    setLoadingComments(true);
+    try {
+      const taskComments = await getTaskComments(taskId);
+      setCommentsByTaskId(prev => ({ ...prev, [taskId]: taskComments }));
+    } catch (err) {
+      console.error("Failed to load task comments:", err);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const handleAddComment = async (e: React.FormEvent, taskId: string) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    try {
+      setIsAddingComment(true);
+      const createdComment = await createTaskComment(taskId, newComment);
+      setCommentsByTaskId(prev => ({
+        ...prev,
+        [taskId]: [...(prev[taskId] || []), createdComment]
+      }));
+      setNewComment("");
+    } catch (err) {
+      console.error("Failed to create task comment:", err);
+    } finally {
+      setIsAddingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (taskId: string, commentId: string) => {
+    try {
+      await deleteTaskComment(commentId);
+      setCommentsByTaskId(prev => ({
+        ...prev,
+        [taskId]: (prev[taskId] || []).filter(c => c.id !== commentId)
+      }));
+    } catch (err) {
+      console.error("Failed to delete task comment:", err);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -255,95 +337,196 @@ export default function DashboardTaskList({ initialTasks }: DashboardTaskListPro
         {tasks.length > 0 ? (
           tasks.map((task) => {
             const isLoading = loadingTaskId === task.id;
+            const isCommentsExpanded = activeCommentsTaskId === task.id;
             return (
               <div 
                 key={task.id} 
-                className={`py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-opacity duration-300 ${
-                  task.status === "completed" ? "opacity-75" : ""
-                }`}
+                className="py-4 flex flex-col gap-3 transition-opacity duration-300"
               >
-                {/* Task Title */}
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="mt-0.5 shrink-0">
-                    {task.status === "completed" ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" strokeWidth={2} />
-                    ) : task.status === "in_progress" ? (
-                      <PlayCircle className="w-4 h-4 text-amber-500 animate-pulse" strokeWidth={2} />
-                    ) : (
-                      <Circle className="w-4 h-4 text-[var(--color-yan-stone)]" strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <span 
-                      className={`text-[13px] text-[var(--color-yan-charcoal)] break-words font-sans leading-relaxed ${
-                        task.status === "completed" ? "line-through text-[var(--color-yan-stone)]" : ""
-                      }`}
-                    >
-                      {task.title}
-                    </span>
-                    {task.created_by && (
-                      <span className="text-[9px] font-mono text-[var(--color-yan-stone)] mt-0.5 uppercase tracking-wider">
-                        Ingresada por: {task.created_by}
+                <div 
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                    task.status === "completed" ? "opacity-75" : ""
+                  }`}
+                >
+                  {/* Task Title */}
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className="mt-0.5 shrink-0">
+                      {task.status === "completed" ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500" strokeWidth={2} />
+                      ) : task.status === "in_progress" ? (
+                        <PlayCircle className="w-4 h-4 text-amber-500 animate-pulse" strokeWidth={2} />
+                      ) : (
+                        <Circle className="w-4 h-4 text-[var(--color-yan-stone)]" strokeWidth={1.5} />
+                      )}
+                    </div>
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span 
+                        className={`text-[13px] text-[var(--color-yan-charcoal)] break-words font-sans leading-relaxed ${
+                          task.status === "completed" ? "line-through text-[var(--color-yan-stone)]" : ""
+                        }`}
+                      >
+                        {task.title}
                       </span>
-                    )}
+                      {task.created_by && (
+                        <span className="text-[9px] font-mono text-[var(--color-yan-stone)] mt-0.5 uppercase tracking-wider">
+                          Ingresada por: {task.created_by}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Status Switcher & Delete Actions */}
+                  <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+                    <div className="flex bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] p-0.5 text-[10px] font-mono font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateStatus(task.id, "pending")}
+                        disabled={isLoading}
+                        className={`px-2 py-1 transition-colors uppercase ${
+                          task.status === "pending"
+                            ? "bg-[var(--color-yan-stone)] text-[var(--color-yan-ivory)]"
+                            : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
+                        }`}
+                      >
+                        Pendiente
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateStatus(task.id, "in_progress")}
+                        disabled={isLoading}
+                        className={`px-2 py-1 transition-colors uppercase ${
+                          task.status === "in_progress"
+                            ? "bg-amber-500 text-white"
+                            : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
+                        }`}
+                      >
+                        En trabajo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateStatus(task.id, "completed")}
+                        disabled={isLoading}
+                        className={`px-2 py-1 transition-colors uppercase ${
+                          task.status === "completed"
+                            ? "bg-emerald-600 text-white"
+                            : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
+                        }`}
+                      >
+                        Hecho
+                      </button>
+                    </div>
+
+                    {/* Toggle Comments Button */}
+                    <button
+                      type="button"
+                      onClick={() => toggleComments(task.id)}
+                      className={`p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-charcoal)] border border-transparent hover:border-[var(--color-yan-border)] transition-all bg-[var(--color-yan-surface-elevated)] ${
+                        isCommentsExpanded ? "border-[var(--color-yan-border)] text-[var(--color-yan-charcoal)]" : ""
+                      }`}
+                      title="Comentarios de la tarea"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteTask(task.id)}
+                      disabled={isLoading}
+                      className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] transition-all bg-[var(--color-yan-surface-elevated)]"
+                      title="Eliminar tarea"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      )}
+                    </button>
                   </div>
                 </div>
 
-                {/* Status Switcher & Delete Actions */}
-                <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
-                  <div className="flex bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] p-0.5 text-[10px] font-mono font-semibold">
-                    <button
-                      type="button"
-                      onClick={() => handleUpdateStatus(task.id, "pending")}
-                      disabled={isLoading}
-                      className={`px-2 py-1 transition-colors uppercase ${
-                        task.status === "pending"
-                          ? "bg-[var(--color-yan-stone)] text-[var(--color-yan-ivory)]"
-                          : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
-                      }`}
-                    >
-                      Pendiente
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleUpdateStatus(task.id, "in_progress")}
-                      disabled={isLoading}
-                      className={`px-2 py-1 transition-colors uppercase ${
-                        task.status === "in_progress"
-                          ? "bg-amber-500 text-white"
-                          : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
-                      }`}
-                    >
-                      En trabajo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleUpdateStatus(task.id, "completed")}
-                      disabled={isLoading}
-                      className={`px-2 py-1 transition-colors uppercase ${
-                        task.status === "completed"
-                          ? "bg-emerald-600 text-white"
-                          : "text-[var(--color-yan-stone)] hover:bg-[var(--color-yan-border-light)]"
-                      }`}
-                    >
-                      Hecho
-                    </button>
-                  </div>
+                {/* Comments Section */}
+                {isCommentsExpanded && (
+                  <div className="pl-7 border-l border-[var(--color-yan-border)] space-y-3 w-full">
+                    {/* Comments List */}
+                    <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+                      {loadingComments ? (
+                        <div className="flex items-center gap-2 text-[var(--color-yan-stone)] font-mono text-[11px] py-2">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Cargando comentarios...</span>
+                        </div>
+                      ) : commentsByTaskId[task.id]?.length > 0 ? (
+                        commentsByTaskId[task.id].map((comment) => (
+                          <div 
+                            key={comment.id} 
+                            className="flex gap-2.5 items-start text-[12px] bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border-light)] p-3 relative group"
+                          >
+                            {comment.profile?.avatar_url ? (
+                              <img 
+                                src={comment.profile.avatar_url} 
+                                alt={comment.created_by} 
+                                className="w-5.5 h-5.5 rounded-full object-cover border border-[var(--color-yan-border-light)] shrink-0"
+                              />
+                            ) : (
+                              <div className="w-5.5 h-5.5 rounded-full bg-[var(--color-yan-border-light)] flex items-center justify-center shrink-0">
+                                <User className="w-3 h-3 text-[var(--color-yan-stone)]" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-baseline justify-between mb-0.5">
+                                <span className="font-semibold text-[var(--color-yan-charcoal)] font-sans">{comment.created_by}</span>
+                                <span className="text-[9px] font-mono text-[var(--color-yan-stone)]">
+                                  {new Date(comment.created_at).toLocaleDateString('es-ES', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              </div>
+                              <p className="text-[12px] text-[var(--color-yan-charcoal)] leading-relaxed font-sans break-words whitespace-pre-wrap">{comment.content}</p>
+                            </div>
+                            
+                            {/* Delete Comment */}
+                            {currentUser && comment.user_id === currentUser.id && (
+                              <button
+                                onClick={() => handleDeleteComment(task.id, comment.id)}
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] transition-all"
+                                title="Eliminar comentario"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-[11px] text-[var(--color-yan-stone)] font-mono py-1.5">No hay comentarios en esta tarea aún.</p>
+                      )}
+                    </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteTask(task.id)}
-                    disabled={isLoading}
-                    className="p-1.5 text-[var(--color-yan-stone)] hover:text-[var(--color-yan-red)] border border-transparent hover:border-[var(--color-yan-border)] transition-all bg-[var(--color-yan-surface-elevated)]"
-                    title="Eliminar tarea"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    )}
-                  </button>
-                </div>
+                    {/* Add Comment Input */}
+                    <form onSubmit={(e) => handleAddComment(e, task.id)} className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Escribe un comentario..."
+                        className="flex-1 bg-[var(--color-yan-surface-elevated)] border border-[var(--color-yan-border)] focus:border-[var(--color-yan-red)] px-3 py-1.5 text-[12px] text-[var(--color-yan-charcoal)] outline-none transition-colors font-sans placeholder:text-[var(--color-yan-stone)]"
+                        disabled={isAddingComment}
+                      />
+                      <button
+                        type="submit"
+                        disabled={isAddingComment || !newComment.trim()}
+                        className="flex items-center justify-center p-2 bg-[var(--color-yan-charcoal)] hover:bg-[var(--color-yan-red)] disabled:bg-[var(--color-yan-stone)] text-[var(--color-yan-ivory)] transition-colors"
+                      >
+                        {isAddingComment ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        )}
+                      </button>
+                    </form>
+                  </div>
+                )}
               </div>
             );
           })
